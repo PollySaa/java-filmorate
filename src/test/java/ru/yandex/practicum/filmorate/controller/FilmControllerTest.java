@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,8 +18,8 @@ class FilmControllerTest {
         film = new Film();
         film.setName("name");
         film.setDescription("description");
-        film.setReleaseDate(LocalDateTime.now());
-        film.setDuration(Duration.ofMinutes(120));
+        film.setReleaseDate(LocalDate.now());
+        film.setDuration(120);
     }
 
     public String setting(Film film) {
@@ -46,13 +45,13 @@ class FilmControllerTest {
 
     @Test
     public void releaseDateValidationFilm() {
-        film.setReleaseDate(LocalDateTime.of(1894, 7, 30, 10, 30));
+        film.setReleaseDate(LocalDate.of(1894, 7, 30));
         assertEquals("Дата релиза — не раньше 28 декабря 1895 года", setting(film));
     }
 
     @Test
     public void durationValidationFilm() {
-        film.setDuration(Duration.ofMinutes(-1));
+        film.setDuration(-1);
         assertEquals("Продолжительность фильма должна быть положительным числом", setting(film));
     }
 }

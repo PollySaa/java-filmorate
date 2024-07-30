@@ -6,7 +6,9 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -25,7 +27,7 @@ public class UserController {
         return user;
     }
 
-    @PutMapping("/id")
+    @PutMapping
     public User updateUser(@RequestBody User user) {
         log.info("Пришёл запрос на обновление пользователя с email {}", user.getEmail());
         validation(user);
@@ -38,8 +40,8 @@ public class UserController {
     }
 
     @GetMapping
-    public Map<Integer, User> getAllUsers() {
-        return users;
+    public List<User> getAllUsers() {
+        return new ArrayList<>(users.values());
     }
 
     private void validation(User user) {
