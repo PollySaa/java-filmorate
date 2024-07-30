@@ -1,7 +1,67 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.springframework.web.bind.annotation.RestController;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
+
+@Slf4j
 @RestController
+@RequestMapping("/films")
 public class FilmController {
+    private final Map<Integer, Film> films = new HashMap<>();
+    private int generateId = 1;
+
+    @PostMapping
+    public Film addFilm(@RequestBody Film film) {
+        log.info("Пришёл запрос на создание фильмя с именем {}", film.getName());
+        validation(film);
+        film.setId(generateId++);
+        films.put(film.getId(), film);
+        return film;
+    }
+
+    @PutMapping("/id")
+    public Film updateFilm(@RequestBody Film film) {
+        log.info("Пришёл запрос на обновление фильмя с именем {}", film.getName());
+        validation(film);
+        if (films.containsKey(film.getId())) {
+            films.put(film.getId(), film);
+            return film;
+        } else {
+            throw new ValidationException("Фильм с таким id не был найден!");
+        }
+    }
+
+    @GetMapping
+    public Map<Integer, Film> getAllFilms() {
+        return films;
+    }
+
+    private void validation(Film film) {
+        if (film.getName() == null || film.getName().isEmpty()) {
+            log.error("Название не может быть пустым");
+            throw new ValidationException("Название не может быть пустым");
+        }
+
+        if (film.getDescription() == null || film.getDescription().length() > 200) {
+            log.error("Максимальная длина описания — 200 символов");
+            throw new ValidationException("Максимальная длина описания — 200 символов");
+        }
+
+        if (film.getReleaseDate() == null || film.getReleaseDate()
+                .isBefore(LocalDate.of(1895, 12, 28).atStartOfDay())) {
+            log.error("Дата релиза — не раньше 28 декабря 1895 года");
+            throw new ValidationException("Дата релиза — не раньше 28 декабря 1895 года");
+        }
+
+        if (film.getDuration() == null || film.getDuration().isZero() || film.getDuration().isNegative()) {
+            log.error("Продолжительность фильма должна быть положительным числом");
+            throw new ValidationException("Продолжительность фильма должна быть положительным числом");
+        }
+    }
 }
