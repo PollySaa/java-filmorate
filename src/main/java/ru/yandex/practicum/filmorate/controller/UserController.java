@@ -35,7 +35,7 @@ public class UserController {
             users.put(user.getId(), user);
             return user;
         } else {
-            throw new IllegalArgumentException("Пользователь с таким id не был найден!");
+            throw new IllegalArgumentException("Пользователь с таким id" + user.getId() + "не был найден!");
         }
     }
 
@@ -45,14 +45,17 @@ public class UserController {
     }
 
     private void validation(User user) {
+        String error;
         if (user.getEmail() == null || user.getEmail().isEmpty() || !user.getEmail().contains("@")) {
-            log.error("Электронная почта не может быть пустой и должна содержать символ @");
-            throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");
+            error = "Электронная почта не может быть пустой и должна содержать символ @";
+            log.error(error);
+            throw new ValidationException(error);
         }
 
         if (user.getLogin() == null || user.getLogin().isEmpty() || user.getLogin().contains(" ")) {
-            log.error("Логин не может быть пустым и содержать пробелы");
-            throw new ValidationException("Логин не может быть пустым и содержать пробелы");
+            error = "Логин не может быть пустым и содержать пробелы";
+            log.error(error);
+            throw new ValidationException(error);
         }
 
         if (user.getName() == null || user.getName().isEmpty()) {
@@ -61,8 +64,9 @@ public class UserController {
         }
 
         if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.error("Дата рождения не может быть в будущем");
-            throw new ValidationException("Дата рождения не может быть в будущем");
+            error = "Дата рождения не может быть в будущем";
+            log.error(error);
+            throw new ValidationException(error);
         }
     }
 }
