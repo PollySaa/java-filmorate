@@ -8,10 +8,10 @@ import java.time.LocalDate;
 
 @Data
 @FieldDefaults(makeFinal = false, level = AccessLevel.PRIVATE)
-public class Film {
+public class User {
     int id;
+    String email;
+    String login;
     String name;
-    String description;
-    LocalDate releaseDate;
-    int duration;
+    LocalDate birthday;
 }
