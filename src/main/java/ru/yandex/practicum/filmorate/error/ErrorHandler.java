@@ -25,13 +25,5 @@ public class ErrorHandler {
         log.error(HttpStatus.NOT_FOUND.toString(), e);
         return new ErrorResponse(e.getMessage());
     }
-
-    @SuppressWarnings("checkstyle:WhitespaceAround")
-    @ExceptionHandler(RuntimeException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleRunTimeException(final RuntimeException e){
-        log.error(HttpStatus.INTERNAL_SERVER_ERROR.toString(), e);
-        return new ErrorResponse(e.getMessage());
-    }
 }
 
