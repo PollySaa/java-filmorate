@@ -18,6 +18,9 @@ public class FilmService {
     private final UserStorage userStorage;
     private Film film;
     private User user;
+    private final String errorUser = "Пользователь не найден";
+    private final String errorFilm = "Фильм не найден";
+    private final String notLike = "Пользователь уже поставил лайк";
 
     @Autowired
     public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
@@ -27,21 +30,21 @@ public class FilmService {
 
     public void addLike(Integer userId, Integer filmId) {
         if (userId == null) {
-            throw new NotFoundException("Пользователь не найден");
+            throw new NotFoundException(errorUser);
         }
         if (filmId == null) {
-            throw new NotFoundException("Фильм не найден");
+            throw new NotFoundException(errorFilm);
         }
         film = filmStorage.getFilmById(filmId);
         if (film == null) {
-            throw new NotFoundException("Фильм не найден");
+            throw new NotFoundException(errorFilm);
         }
         user = userStorage.getUserById(userId);
         if (user == null) {
-            throw new NotFoundException("Пользователь не найден");
+            throw new NotFoundException(errorUser);
         }
         if (film.hasLikeFrom(userId)) {
-            throw new ValidationException("Пользователь уже поставил лайк");
+            throw new ValidationException(notLike);
         }
         film.addLike(userId);
         filmStorage.updateFilm(film);
@@ -49,21 +52,21 @@ public class FilmService {
 
     public void removeLike(Integer userId, Integer filmId) {
         if (userId == null) {
-            throw new NotFoundException("Пользователь не найден");
+            throw new NotFoundException(errorUser);
         }
         if (filmId == null) {
-            throw new NotFoundException("Фильм не найден");
+            throw new NotFoundException(errorFilm);
         }
         film = filmStorage.getFilmById(filmId);
         if (film == null) {
-            throw new NotFoundException("Фильм не найден");
+            throw new NotFoundException(errorFilm);
         }
         user = userStorage.getUserById(userId);
         if (user == null) {
-            throw new NotFoundException("Пользователь не найден");
+            throw new NotFoundException(errorUser);
         }
         if (!film.hasLikeFrom(userId)) {
-            throw new ValidationException("Пользователь не ставил лайк");
+            throw new ValidationException(notLike);
         }
         film.removeLike(userId);
         filmStorage.updateFilm(film);
