@@ -28,7 +28,7 @@ import java.util.*;
 @AutoConfigureCache
 @Transactional
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-class FilmorateApplicationTest {
+class FilmorateApplicationTests {
     private final UserDbStorage userStorage;
     private final FilmDbStorage filmStorage;
     private final FilmService filmService;
