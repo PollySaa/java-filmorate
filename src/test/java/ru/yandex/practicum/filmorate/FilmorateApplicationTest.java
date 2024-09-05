@@ -19,7 +19,6 @@ import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 import java.time.LocalDate;
 import java.util.*;
 
@@ -28,7 +27,7 @@ import java.util.*;
 @AutoConfigureCache
 @Transactional
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-class FilmorateApplicationTests {
+class FilmorateApplicationTest {
     private final UserDbStorage userStorage;
     private final FilmDbStorage filmStorage;
     private final FilmService filmService;
@@ -47,19 +46,16 @@ class FilmorateApplicationTests {
         firstUser.setLogin("First");
         firstUser.setEmail("1@ya.ru");
         firstUser.setBirthday(LocalDate.of(1980, 12, 23));
-
         secondUser = new User();
         secondUser.setName("SecondUser");
         secondUser.setLogin("Second");
         secondUser.setEmail("2@ya.ru");
         secondUser.setBirthday(LocalDate.of(1980, 12, 24));
-
         thirdUser = new User();
         thirdUser.setName("ThirdUser");
         thirdUser.setLogin("Third");
         thirdUser.setEmail("3@ya.ru");
         thirdUser.setBirthday(LocalDate.of(1980, 12, 25));
-
         firstFilm = new Film();
         firstFilm.setName("Something1");
         firstFilm.setDescription("Empty");
