@@ -23,7 +23,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.util.*;
 
-@SuppressWarnings({"checkstyle:OuterTypeFilename", "checkstyle:Regexp"})
 @SpringBootTest
 @AutoConfigureTestDatabase
 @AutoConfigureCache
@@ -141,7 +140,6 @@ class FilmoRateApplicationTests {
 				);
 	}
 
-	@SuppressWarnings({"checkstyle:Regexp", "checkstyle:AnnotationLocation"})
     @Test
 	public void testUpdateFilm() {
 		firstFilm = filmStorage.addFilm(firstFilm);
@@ -255,7 +253,6 @@ class FilmoRateApplicationTests {
 		assertThat(userService.getFriends(firstUser.getId())).hasSize(1);
 	}
 
-	@SuppressWarnings({"checkstyle:EmptyLineSeparator", "checkstyle:AnnotationLocation"})
     @Test
 	public void testGetFriends() {
 		firstUser = userStorage.addUser(firstUser);
