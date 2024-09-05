@@ -1,47 +1,84 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final Map<Integer, User> users = new HashMap<>();
-    private int generateId = 1;
+    private final UserStorage userStorage;
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserStorage userStorage, UserService userService) {
+        this.userStorage = userStorage;
+        this.userService = userService;
+    }
 
     @PostMapping
     public User addUser(@RequestBody User user) {
-        log.info("Пришёл запрос на создание пользователя с email {}", user.getEmail());
+        log.info("Пришёл запрос на создание пользователя с email: {}", user.getEmail());
         validation(user);
-        user.setId(generateId++);
-        users.put(user.getId(), user);
+        user = userStorage.addUser(user);
         return user;
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+        log.info("Пришёл запрос на добавление друга с id: {}", friendId);
+        userService.addFriend(id, friendId);
     }
 
     @PutMapping
     public User updateUser(@RequestBody User user) {
-        log.info("Пришёл запрос на обновление пользователя с email {}", user.getEmail());
+        log.info("Пришёл запрос на обновление пользователя с email: {}", user.getEmail());
         validation(user);
-        if (users.containsKey(user.getId())) {
-            users.put(user.getId(), user);
+        if (userStorage.getUserById(user.getId()) != null) {
+            userStorage.updateUser(user);
             return user;
         } else {
-            throw new IllegalArgumentException("Пользователь с таким id" + user.getId() + "не был найден!");
+            throw new NotFoundException("Пользователь с таким id: " + user.getId() + " не был найден!");
         }
     }
 
     @GetMapping
     public List<User> getAllUsers() {
-        return new ArrayList<>(users.values());
+        return userStorage.getUsers();
+    }
+
+    @GetMapping("/{id}")
+    public User getUserById(@PathVariable Integer id) {
+        if (userStorage.getUserById(id) != null) {
+            return userStorage.getUserById(id);
+        } else {
+            throw new NotFoundException("Пользователь с таким id: " + id + " не был найден!");
+        }
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> getFriends(@PathVariable Integer id) {
+        return userService.getFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
+        return userService.getCommonFriends(id, otherId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void deleteFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+        log.info("Пришёл запрос на удаление друга с id: {}", friendId);
+        userService.removeFriend(id, friendId);
     }
 
     private void validation(User user) {

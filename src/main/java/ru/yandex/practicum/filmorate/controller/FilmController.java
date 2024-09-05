@@ -1,47 +1,76 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    private final Map<Integer, Film> films = new HashMap<>();
-    private int generateId = 1;
+    private final FilmStorage filmStorage;
+    private final FilmService filmService;
+
+    @Autowired
+    public FilmController(FilmStorage filmStorage, FilmService filmService) {
+        this.filmStorage = filmStorage;
+        this.filmService = filmService;
+    }
 
     @PostMapping
     public Film addFilm(@RequestBody Film film) {
-        log.info("Пришёл запрос на создание фильмя с именем {}", film.getName());
+        log.info("Пришёл запрос на создание фильма с именем: {}", film.getName());
         validation(film);
-        film.setId(generateId++);
-        films.put(film.getId(), film);
+        filmStorage.addFilm(film);
         return film;
+    }
+
+    @PutMapping("/{id}/like/{userId}")
+    public void addLike(@PathVariable Integer id, @PathVariable Integer userId) {
+        filmService.addLike(userId, id);
     }
 
     @PutMapping
     public Film updateFilm(@RequestBody Film film) {
-        log.info("Пришёл запрос на обновление фильмя с именем {}", film.getName());
+        log.info("Пришёл запрос на обновление фильмя с именем: {}", film.getName());
         validation(film);
-        if (films.containsKey(film.getId())) {
-            films.put(film.getId(), film);
+        if (filmStorage.getFilmById(film.getId()) != null) {
+            filmStorage.updateFilm(film);
             return film;
         } else {
-            throw new ValidationException("Фильм с таким id" + film.getId() + "не был найден!");
+            throw new NotFoundException("Фильм с таким id: " + film.getId() + " не был найден!");
         }
     }
 
     @GetMapping
     public List<Film> getAllFilms() {
-        return new ArrayList<>(films.values());
+        return filmStorage.getFilms();
+    }
+
+    @GetMapping("/{id}")
+    public Film getFilmById(@PathVariable Integer id) {
+        return filmStorage.getFilmById(id);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getPopular(@RequestParam(value = "count", required = false) Integer count) {
+        if (count == null) {
+            count = 10;
+        }
+        return filmService.getTopPopularFilms(count);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public void deleteLike(@PathVariable Integer id, @PathVariable Integer userId) {
+        filmService.removeLike(userId, id);
     }
 
     private void validation(Film film) {
