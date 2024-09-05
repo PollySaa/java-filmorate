@@ -12,7 +12,7 @@ import ru.yandex.practicum.filmorate.service.MpaService;
 import java.util.HashSet;
 import java.util.List;
 
-@FieldDefaults(makeFinal = false, level = AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Component
 public class LikeStorage {
     final JdbcTemplate jdbcTemplate;

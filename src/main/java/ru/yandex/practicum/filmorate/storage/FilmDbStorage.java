@@ -16,7 +16,7 @@ import ru.yandex.practicum.filmorate.service.MpaService;
 
 import java.util.*;
 
-@FieldDefaults(makeFinal = false, level = AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Component("filmDbStorage")
 public class FilmDbStorage implements FilmStorage {
     final JdbcTemplate jdbcTemplate;

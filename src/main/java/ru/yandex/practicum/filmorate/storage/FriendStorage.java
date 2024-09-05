@@ -11,7 +11,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
 
-@FieldDefaults(makeFinal = false, level = AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Component
 public class FriendStorage {
     final JdbcTemplate jdbcTemplate;

@@ -29,7 +29,7 @@ public class GenreController {
     }
 
     @GetMapping("/{id}")
-    public Genre getGenreById(@PathVariable Integer id) {
+    public Genre getGenreById(@PathVariable("id") Integer id) {
         log.info("Получен GET-запрос к эндпоинту: '/genres' на получение жанра с id = {}", id);
         return genreService.getGenreById(id);
     }

@@ -29,7 +29,7 @@ public class MpaController {
     }
 
     @GetMapping("/{id}")
-    public Mpa getMpaById(@PathVariable Integer id) {
+    public Mpa getMpaById(@PathVariable("id") Integer id) {
         log.info("Получен GET-запрос к эндпоинту: '/mpa' на получение рейтинга с id = {}", id);
         return mpaService.getMpaById(id);
     }
