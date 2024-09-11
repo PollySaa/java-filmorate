@@ -26,9 +26,3 @@
   WHERE film_id=1;
 </details>
 
-<details>
-  <summary>Получить фильм с id=1</summary>
-  SELECT * <br>
-  FROM film <br>
-  WHERE film_id=1;
-</details>
