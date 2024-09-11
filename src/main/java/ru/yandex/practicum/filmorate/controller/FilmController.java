@@ -2,10 +2,12 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
@@ -20,7 +22,7 @@ public class FilmController {
     private final FilmService filmService;
 
     @Autowired
-    public FilmController(FilmStorage filmStorage, FilmService filmService) {
+    public FilmController(@Qualifier("filmDbStorage") FilmStorage filmStorage, FilmService filmService) {
         this.filmStorage = filmStorage;
         this.filmService = filmService;
     }
@@ -33,8 +35,8 @@ public class FilmController {
         return film;
     }
 
-    @PutMapping("/{id}/like/{userId}")
-    public void addLike(@PathVariable Integer id, @PathVariable Integer userId) {
+    @PutMapping("/{id}/like/{user-id}")
+    public void addLike(@PathVariable("id") Integer id, @PathVariable("user-id") Integer userId) {
         filmService.addLike(userId, id);
     }
 
@@ -68,8 +70,8 @@ public class FilmController {
         return filmService.getTopPopularFilms(count);
     }
 
-    @DeleteMapping("/{id}/like/{userId}")
-    public void deleteLike(@PathVariable Integer id, @PathVariable Integer userId) {
+    @DeleteMapping("/{id}/like/{user-id}")
+    public void deleteLike(@PathVariable("id") Integer id, @PathVariable("user-id") Integer userId) {
         filmService.removeLike(userId, id);
     }
 
@@ -97,6 +99,20 @@ public class FilmController {
             error = "Продолжительность фильма должна быть положительным числом";
             log.error(error);
             throw new ValidationException(error);
+        }
+
+        if (film.getMpa().getId() > 5) {
+            error = "id возростного рейтинга не может быть больше 5";
+            log.error(error);
+            throw new ValidationException(error);
+        }
+
+        for (Genre genre : film.getGenres()) {
+            if (genre.getId() > 6) {
+                error = "id жанра не может быть больше 6";
+                log.error(error);
+                throw new ValidationException(error);
+            }
         }
     }
 }

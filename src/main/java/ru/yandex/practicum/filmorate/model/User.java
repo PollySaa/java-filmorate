@@ -5,7 +5,9 @@ import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 @Data
@@ -16,13 +18,32 @@ public class User {
     String login;
     String name;
     LocalDate birthday;
-    Set<Integer> friends = new HashSet<>();
+    Set<Integer> friends;
 
-    public void addFriend(int id) {
-        friends.add(id);
+    public User(Integer id, String email, String login, String name, LocalDate birthday, Set<Integer> friends) {
+        this.id = id;
+        this.email = email;
+        this.login = login;
+        this.name = name;
+        if ((name == null) || (name.isEmpty()) || (name.isBlank())) {
+            this.name = login;
+        }
+        this.birthday = birthday;
+        this.friends = friends;
+        if (friends == null) {
+            this.friends = new HashSet<>();
+        }
     }
 
-    public void removeFriend(int id) {
-        friends.remove(id);
+    public User() {
+    }
+
+    public Map<String, Object> toMap() {
+        Map<String, Object> values = new HashMap<>();
+        values.put("email", email);
+        values.put("login", login);
+        values.put("name", name);
+        values.put("birthday", birthday);
+        return values;
     }
 }

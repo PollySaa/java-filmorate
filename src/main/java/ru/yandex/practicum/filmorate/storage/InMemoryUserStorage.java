@@ -26,16 +26,17 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void deleteUser(int id) {
+    public User deleteUser(Integer id) {
         if (users.containsKey(id)) {
             users.remove(id);
         } else {
             throw new NotFoundException("Пользователь с таким id: " + id + " не был найден!");
         }
+        return null;
     }
 
     @Override
-    public void updateUser(User user) {
+    public User updateUser(User user) {
         if (user.getId() == null) {
             throw new ValidationException("Id пользователя не может быть пустым");
         }
@@ -44,6 +45,7 @@ public class InMemoryUserStorage implements UserStorage {
         } else {
             throw new NotFoundException("Пользователь с таким id: " + user.getId() + " не был найден!");
         }
+        return user;
     }
 
     @Override

@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -20,7 +21,7 @@ public class UserController {
     private final UserService userService;
 
     @Autowired
-    public UserController(UserStorage userStorage, UserService userService) {
+    public UserController(@Qualifier("userDbStorage") UserStorage userStorage, UserService userService) {
         this.userStorage = userStorage;
         this.userService = userService;
     }
@@ -33,8 +34,8 @@ public class UserController {
         return user;
     }
 
-    @PutMapping("/{id}/friends/{friendId}")
-    public void addFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+    @PutMapping("/{id}/friends/{friend-id}")
+    public void addFriend(@PathVariable("id") Integer id, @PathVariable("friend-id") Integer friendId) {
         log.info("Пришёл запрос на добавление друга с id: {}", friendId);
         userService.addFriend(id, friendId);
     }
@@ -70,13 +71,13 @@ public class UserController {
         return userService.getFriends(id);
     }
 
-    @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> getCommonFriends(@PathVariable Integer id, @PathVariable Integer otherId) {
+    @GetMapping("/{id}/friends/common/{other-id}")
+    public List<User> getCommonFriends(@PathVariable("id") Integer id, @PathVariable("other-id") Integer otherId) {
         return userService.getCommonFriends(id, otherId);
     }
 
-    @DeleteMapping("/{id}/friends/{friendId}")
-    public void deleteFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+    @DeleteMapping("/{id}/friends/{friend-id}")
+    public void deleteFriend(@PathVariable("id") Integer id, @PathVariable("friend-id") Integer friendId) {
         log.info("Пришёл запрос на удаление друга с id: {}", friendId);
         userService.removeFriend(id, friendId);
     }

@@ -25,16 +25,16 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void deleteFilm(int id) {
+    public Film deleteFilm(Integer id) {
         if (films.containsKey(id)) {
-            films.remove(id);
+            return films.remove(id);
         } else {
             throw new ValidationException("Фильм с таким id " + id + " не был найден!");
         }
     }
 
     @Override
-    public void updateFilm(Film film) {
+    public Film updateFilm(Film film) {
         if (film.getId() == null) {
             throw new ValidationException("Id фильма не может быть пустым");
         }
@@ -43,10 +43,11 @@ public class InMemoryFilmStorage implements FilmStorage {
         } else {
             throw new ValidationException("Фильм с таким id " + film.getId() + " не был найден!");
         }
+        return film;
     }
 
     @Override
-    public Film getFilmById(int id) {
+    public Film getFilmById(Integer id) {
         return films.get(id);
     }
 
