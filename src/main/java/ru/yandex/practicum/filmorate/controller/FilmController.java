@@ -75,6 +75,11 @@ public class FilmController {
         filmService.removeLike(userId, id);
     }
 
+    @GetMapping("/common")
+    public List<Film> getCommonFilms(@RequestParam Integer userId, @RequestParam Integer friendId) {
+        return filmService.getCommonFilms(userId, friendId);
+    }
+
     private void validation(Film film) {
         String error;
         if (film.getName() == null || film.getName().isEmpty()) {
