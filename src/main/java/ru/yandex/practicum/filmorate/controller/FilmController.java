@@ -1,8 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -17,15 +16,10 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/films")
+@RequiredArgsConstructor
 public class FilmController {
     private final FilmStorage filmStorage;
     private final FilmService filmService;
-
-    @Autowired
-    public FilmController(@Qualifier("filmDbStorage") FilmStorage filmStorage, FilmService filmService) {
-        this.filmStorage = filmStorage;
-        this.filmService = filmService;
-    }
 
     @PostMapping
     public Film addFilm(@RequestBody Film film) {
@@ -42,7 +36,7 @@ public class FilmController {
 
     @PutMapping
     public Film updateFilm(@RequestBody Film film) {
-        log.info("Пришёл запрос на обновление фильмя с именем: {}", film.getName());
+        log.info("Пришёл запрос на обновление фильма с именем: {}", film.getName());
         validation(film);
         if (filmStorage.getFilmById(film.getId()) != null) {
             filmStorage.updateFilm(film);
@@ -75,6 +69,12 @@ public class FilmController {
         filmService.removeLike(userId, id);
     }
 
+    @DeleteMapping("/{film-id}")
+    public void deleteFilm(@PathVariable("film-id") Integer id) {
+        log.info("Пришёл запрос на удаление фильма с id: {}", id);
+        filmStorage.deleteFilm(id);
+    }
+
     private void validation(Film film) {
         String error;
         if (film.getName() == null || film.getName().isEmpty()) {
@@ -102,7 +102,7 @@ public class FilmController {
         }
 
         if (film.getMpa().getId() > 5) {
-            error = "id возростного рейтинга не может быть больше 5";
+            error = "id возрастного рейтинга не может быть больше 5";
             log.error(error);
             throw new ValidationException(error);
         }

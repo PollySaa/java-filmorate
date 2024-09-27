@@ -1,8 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -16,15 +15,10 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
     private final UserStorage userStorage;
     private final UserService userService;
-
-    @Autowired
-    public UserController(@Qualifier("userDbStorage") UserStorage userStorage, UserService userService) {
-        this.userStorage = userStorage;
-        this.userService = userService;
-    }
 
     @PostMapping
     public User addUser(@RequestBody User user) {
@@ -80,6 +74,12 @@ public class UserController {
     public void deleteFriend(@PathVariable("id") Integer id, @PathVariable("friend-id") Integer friendId) {
         log.info("Пришёл запрос на удаление друга с id: {}", friendId);
         userService.removeFriend(id, friendId);
+    }
+
+    @DeleteMapping("/{user-id}")
+    public void deleteUser(@PathVariable("user-id") Integer id) {
+        log.info("Пришёл запрос на удаление пользователя с id: {}", id);
+        userStorage.deleteUser(id);
     }
 
     private void validation(User user) {

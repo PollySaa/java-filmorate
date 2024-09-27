@@ -36,7 +36,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public User deleteUser(Integer id) {
+    public void deleteUser(Integer id) {
         if (id == null) {
             throw new ValidationException("Передан пустой аргумент!");
         }
@@ -45,8 +45,6 @@ public class UserDbStorage implements UserStorage {
         if (jdbcTemplate.update(sql, id) == 0) {
             throw new NotFoundException("Пользователь с id = " + id + " не найден!");
         }
-        return user;
-
     }
 
     @Override
