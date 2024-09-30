@@ -8,12 +8,17 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.service.DirectorService;
 import ru.yandex.practicum.filmorate.service.GenreService;
 import ru.yandex.practicum.filmorate.service.MpaService;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.*;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -23,16 +28,18 @@ public class FilmDbStorage implements FilmStorage {
     final MpaService mpaService;
     final LikeStorage likeStorage;
     final GenreService genreService;
+    final DirectorService directorService;
     Film film;
     String sql;
 
     @Autowired
     public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaService mpaService, LikeStorage likeStorage,
-                         GenreService genreService) {
+                         GenreService genreService, DirectorService directorService) {
         this.jdbcTemplate = jdbcTemplate;
         this.mpaService = mpaService;
         this.likeStorage = likeStorage;
         this.genreService = genreService;
+        this.directorService = directorService;
     }
 
     @Override
@@ -50,6 +57,17 @@ public class FilmDbStorage implements FilmStorage {
             }
             genreService.putGenres(film);
         }
+
+        if (!film.getDirectors().isEmpty()) {
+            for (Director director : film.getDirectors()) {
+                if (!directorService.exists(director.getId())) {
+                    throw new NotFoundException("По данному id режиссёр не найден");
+                }
+                director.setName(directorService.getDirectorById(director.getId()).getName());
+                directorService.putDirector(director.getId(), film.getId());
+            }
+        }
+
         return film;
     }
 
@@ -78,6 +96,14 @@ public class FilmDbStorage implements FilmStorage {
         if (updatedRows == 0) {
             throw new NotFoundException("Фильм с id = " + film.getId() + " не найден для обновления!");
         }
+
+        for (Director director : film.getDirectors()) {
+            if (!directorService.exists(director.getId())) {
+                throw new NotFoundException("По данному id режиссёр не найден");
+            }
+            director.setName(directorService.getDirectorById(director.getId()).getName());
+            directorService.putDirector(director.getId(), film.getId());
+        }
         return film;
     }
 
@@ -95,7 +121,8 @@ public class FilmDbStorage implements FilmStorage {
                     filmRows.getInt("duration"),
                     new HashSet<>(likeStorage.getLikes(filmRows.getInt("id"))),
                     mpa,
-                    genres);
+                    genres,
+                    directorService.getDirectorsByFilmId(filmRows.getInt("id")));
         } else {
             throw new NotFoundException("Фильм с id = " + id + " не найден!");
         }
@@ -116,7 +143,58 @@ public class FilmDbStorage implements FilmStorage {
                 rs.getInt("duration"),
                 new HashSet<>(likeStorage.getLikes(rs.getInt("id"))),
                 mpaService.getMpaById(rs.getInt("rating_id")),
-                genreService.getFilmGenres(rs.getInt("id")))
-        );
+                genreService.getFilmGenres(rs.getInt("id")),
+                directorService.getDirectorsByFilmId(rs.getInt("id"))
+        ));
+    }
+
+    @Override
+    public List<Film> getFilmsByDirector(Integer directorId, String sortBy) {
+
+        if (!directorService.exists(directorId)) {
+            throw new NotFoundException("По данному id режиссёр не найден");
+        }
+
+        List<Film> orderedFilms = new ArrayList<>();
+
+        if (sortBy.equals("year")) {
+            String query = "SELECT * FROM film " +
+                    "WHERE id IN " +
+                    "(SELECT film_id FROM film_directors WHERE director_id = ?) " +
+                    "ORDER BY release_date ;";
+            orderedFilms.addAll(jdbcTemplate.query(query, this::mapRowToFilm, directorId));
+        } else if (sortBy.equals("likes")) {
+            String query = "SELECT id, name, description, release_date, duration, rating_id, COUNT(*) AS likes_count FROM film AS f " +
+                    "JOIN FILM_LIKE AS fl ON f.id = fl.film_id " +
+                    "WHERE f.id IN " +
+                    "(SELECT film_id FROM film_directors WHERE director_id = ?) " +
+                    "GROUP BY f.id " +
+                    "ORDER BY likes_count DESC;";
+            orderedFilms.addAll(jdbcTemplate.query(query, this::mapRowToFilm, directorId));
+        } else {
+            throw new ValidationException("Неверный параметр запроса. Возможны варианты: [year, like]");
+        }
+
+        return orderedFilms;
+    }
+
+    @Override
+    public boolean contains(Integer id) {
+        sql = "SELECT COUNT(*) FROM film WHERE id = ? ;";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, id);
+
+        return count > 0;
+    }
+
+    private Film mapRowToFilm(ResultSet rs, int rn) throws SQLException {
+        return new Film(rs.getInt("id"),
+                rs.getString("name"),
+                rs.getString("description"),
+                rs.getDate("release_date").toLocalDate(),
+                rs.getInt("duration"),
+                new HashSet<>(likeStorage.getLikes(rs.getInt("id"))),
+                mpaService.getMpaById(rs.getInt("rating_id")),
+                genreService.getFilmGenres(rs.getInt("id")),
+                directorService.getDirectorsByFilmId(rs.getInt("id")));
     }
 }

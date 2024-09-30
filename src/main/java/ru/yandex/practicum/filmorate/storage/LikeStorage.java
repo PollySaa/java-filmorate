@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.DirectorService;
 import ru.yandex.practicum.filmorate.service.GenreService;
 import ru.yandex.practicum.filmorate.service.MpaService;
 
@@ -18,13 +19,15 @@ public class LikeStorage {
     final JdbcTemplate jdbcTemplate;
     final MpaService mpaService;
     final GenreService genreService;
+    final DirectorService directorService;
     String sql;
 
     @Autowired
-    public LikeStorage(JdbcTemplate jdbcTemplate, MpaService mpaService, GenreService genreService) {
+    public LikeStorage(JdbcTemplate jdbcTemplate, MpaService mpaService, GenreService genreService, DirectorService directorService) {
         this.jdbcTemplate = jdbcTemplate;
         this.mpaService = mpaService;
         this.genreService = genreService;
+        this.directorService = directorService;
     }
 
     public void addLike(Integer filmId, Integer userId) {
@@ -50,7 +53,8 @@ public class LikeStorage {
                         rs.getInt("duration"),
                         new HashSet<>(getLikes(rs.getInt("id"))),
                         mpaService.getMpaById(rs.getInt("rating_id")),
-                        genreService.getFilmGenres(rs.getInt("id"))),
+                        genreService.getFilmGenres(rs.getInt("id")),
+                        directorService.getDirectorsByFilmId(rs.getInt("id"))),
                 count);
     }
 

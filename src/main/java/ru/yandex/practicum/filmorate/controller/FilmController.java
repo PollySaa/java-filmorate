@@ -70,6 +70,11 @@ public class FilmController {
         return filmService.getTopPopularFilms(count);
     }
 
+    @GetMapping("/director/{directorId}")
+    public List<Film> getFilmsByDirector(@PathVariable Integer directorId, @RequestParam String sortBy) {
+        return filmService.getFilmsByDirector(directorId, sortBy);
+    }
+
     @DeleteMapping("/{id}/like/{user-id}")
     public void deleteLike(@PathVariable("id") Integer id, @PathVariable("user-id") Integer userId) {
         filmService.removeLike(userId, id);

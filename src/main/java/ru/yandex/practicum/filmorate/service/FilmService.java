@@ -6,28 +6,31 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.*;
+import java.util.List;
 
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final LikeStorage likeStorage;
-    private Film film;
+    private final DirectorStorage directorStorage;
     private final String errorUser = "Пользователь не найден";
     private final String errorFilm = "Фильм не найден";
+    private Film film;
 
     @Autowired
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
                        @Qualifier("userDbStorage") UserStorage userStorage,
-                       LikeStorage likeStorage) {
+                       LikeStorage likeStorage, DirectorStorage directorStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.likeStorage = likeStorage;
+        this.directorStorage = directorStorage;
     }
 
     public void addLike(Integer userId, Integer filmId) {
@@ -66,6 +69,10 @@ public class FilmService {
             throw new ValidationException("Некорректное значение параметра count");
         }
         return likeStorage.getPopular(count);
+    }
+
+    public List<Film> getFilmsByDirector(Integer directorId, String sortBy) {
+        return filmStorage.getFilmsByDirector(directorId, sortBy);
     }
 }
 
