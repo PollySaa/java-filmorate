@@ -5,6 +5,8 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.GenreService;
 import ru.yandex.practicum.filmorate.service.MpaService;
@@ -58,5 +60,43 @@ public class LikeStorage {
         sql = "SELECT user_id FROM film_like WHERE film_id = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getInt("user_id"), filmId);
     }
-}
 
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        checkContainsUserById(userId);
+        checkContainsUserById(friendId);
+
+        String sqlForFindCommonFilmsIds = "SELECT film_like.film_id " +
+                "FROM film_like " +
+                "WHERE film_like.user_id = ? AND film_like.film_id IN (" +
+                "SELECT film_like.film_id " +
+                "FROM film_like " +
+                "WHERE film_like.user_id = ?)";
+
+        sql = "SELECT film.* " +
+                "FROM film LEFT JOIN film_like ON film.id = film_like.film_id " +
+                "WHERE film_like.film_id IN (" + sqlForFindCommonFilmsIds + ")" +
+                "GROUP BY film.id ORDER BY COUNT(film_like.user_id) DESC";
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> new Film(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        rs.getDate("release_Date").toLocalDate(),
+                        rs.getInt("duration"),
+                        new HashSet<>(getLikes(rs.getInt("id"))),
+                        mpaService.getMpaById(rs.getInt("rating_id")),
+                        genreService.getFilmGenres(rs.getInt("id"))),
+                userId, friendId);
+    }
+
+    public void checkContainsUserById(Integer userId) {
+        if (userId == null) {
+            throw new ValidationException("Передан пустой аргумент!");
+        }
+        String sql = "SELECT COUNT(id) FROM users WHERE id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, userId);
+        if (count == null || count == 0) {
+            throw new NotFoundException("Пользователь с id = " + userId + " не найден!");
+        }
+    }
+}
