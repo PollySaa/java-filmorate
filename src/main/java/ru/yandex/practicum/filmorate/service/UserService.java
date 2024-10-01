@@ -7,7 +7,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
 
-import java.util.*;
+import java.util.List;
 
 @Service
 public class UserService {
