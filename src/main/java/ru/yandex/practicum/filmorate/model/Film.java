@@ -48,5 +48,4 @@ public class Film {
         values.put("rating_id", mpa.getId());
         return values;
     }
-
 }

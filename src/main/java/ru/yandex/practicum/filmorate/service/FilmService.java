@@ -74,5 +74,12 @@ public class FilmService {
     public List<Film> getFilmsByDirector(Integer directorId, String sortBy) {
         return filmStorage.getFilmsByDirector(directorId, sortBy);
     }
+
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        if (userId.equals(friendId)) {
+            throw new ValidationException("Попытка получить список общих фильмов для одного и того же пользователя");
+        }
+        return likeStorage.getCommonFilms(userId, friendId);
+    }
 }
 

@@ -228,6 +228,39 @@ class FilmorateApplicationTest {
     }
 
     @Test
+    public void testGetCommonFilms() {
+        firstUser = userStorage.addUser(firstUser);
+        secondUser = userStorage.addUser(secondUser);
+        thirdUser = userStorage.addUser(thirdUser);
+
+        firstFilm = filmStorage.addFilm(firstFilm);
+        filmService.addLike(firstUser.getId(), firstFilm.getId());
+        filmService.addLike(secondUser.getId(), firstFilm.getId());
+
+        secondFilm = filmStorage.addFilm(secondFilm);
+        filmService.addLike(firstUser.getId(), secondFilm.getId());
+        filmService.addLike(secondUser.getId(), secondFilm.getId());
+        filmService.addLike(thirdUser.getId(), secondFilm.getId());
+
+        thirdFilm = filmStorage.addFilm(thirdFilm);
+        filmService.addLike(firstUser.getId(), thirdFilm.getId());
+
+        List<Film> listFilms = filmService.getCommonFilms(firstUser.getId(), secondUser.getId());
+
+        assertThat(listFilms).hasSize(2);
+
+        assertThat(Optional.of(listFilms.get(0)))
+                .hasValueSatisfying(film ->
+                        AssertionsForClassTypes.assertThat(film)
+                                .hasFieldOrPropertyWithValue("name", "Something2"));
+
+        assertThat(Optional.of(listFilms.get(1)))
+                .hasValueSatisfying(film ->
+                        AssertionsForClassTypes.assertThat(film)
+                                .hasFieldOrPropertyWithValue("name", "Something1"));
+    }
+
+    @Test
     public void testAddFriend() {
         firstUser = userStorage.addUser(firstUser);
         secondUser = userStorage.addUser(secondUser);
