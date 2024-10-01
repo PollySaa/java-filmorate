@@ -75,7 +75,6 @@ public class FilmService {
         if (count < 1) {
             throw new ValidationException("Некорректное значение параметра count");
         }
-
         return likeStorage.getPopularByGenre(genreId, count);
     }
 
@@ -86,7 +85,6 @@ public class FilmService {
         if (count < 1) {
             throw new ValidationException("Некорректное значение параметра count");
         }
-
         return likeStorage.getPopularByYear(year, count);
     }
 
@@ -95,6 +93,10 @@ public class FilmService {
             throw new ValidationException("Некорректное значение параметра count");
         }
         return likeStorage.getPopularByGenreAndYear(genreId, year, count);
+    }
+
+    public List<Film> getFilmsByDirector(Integer directorId, String sortBy) {
+        return filmStorage.getFilmsByDirector(directorId, sortBy);
     }
 
     public List<Film> getCommonFilms(Integer userId, Integer friendId) {
