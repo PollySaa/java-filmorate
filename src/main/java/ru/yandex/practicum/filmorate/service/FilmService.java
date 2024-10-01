@@ -68,6 +68,35 @@ public class FilmService {
         return likeStorage.getPopular(count);
     }
 
+    public List<Film> getTopPopularFilmsByGenre(Integer genreId, Integer count) {
+        if (count == null) {
+            count = 10;
+        }
+        if (count < 1) {
+            throw new ValidationException("Некорректное значение параметра count");
+        }
+
+        return likeStorage.getPopularByGenre(genreId, count);
+    }
+
+    public List<Film> getTopPopularFilmsByYear(Integer year, Integer count) {
+        if (count == null) {
+            count = 10;
+        }
+        if (count < 1) {
+            throw new ValidationException("Некорректное значение параметра count");
+        }
+
+        return likeStorage.getPopularByYear(year, count);
+    }
+
+    public List<Film> getPopularByGenreAndYear(Integer genreId, Integer year, Integer count) {
+        if (count == null || count < 1) {
+            throw new ValidationException("Некорректное значение параметра count");
+        }
+        return likeStorage.getPopularByGenreAndYear(genreId, year, count);
+    }
+
     public List<Film> getCommonFilms(Integer userId, Integer friendId) {
         if (userId.equals(friendId)) {
             throw new ValidationException("Попытка получить список общих фильмов для одного и того же пользователя");
