@@ -32,7 +32,6 @@ public class UserDbStorage implements UserStorage {
         user.setId((int) simpleJdbcInsert.executeAndReturnKey(user.toMap()).longValue());
         log.info("Добавлен новый пользователь с id = {}", user.getId());
         return user;
-
     }
 
     @Override
@@ -67,7 +66,6 @@ public class UserDbStorage implements UserStorage {
         } else {
             throw new NotFoundException("Пользователь с id = " + user.getId() + " не найден!");
         }
-
     }
 
     @Override

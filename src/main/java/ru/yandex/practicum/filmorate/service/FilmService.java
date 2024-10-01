@@ -67,5 +67,12 @@ public class FilmService {
         }
         return likeStorage.getPopular(count);
     }
+
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        if (userId.equals(friendId)) {
+            throw new ValidationException("Попытка получить список общих фильмов для одного и того же пользователя");
+        }
+        return likeStorage.getCommonFilms(userId, friendId);
+    }
 }
 

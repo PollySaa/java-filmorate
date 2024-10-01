@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -74,6 +75,11 @@ public class UserController {
     public void deleteFriend(@PathVariable("id") Integer id, @PathVariable("friend-id") Integer friendId) {
         log.info("Пришёл запрос на удаление друга с id: {}", friendId);
         userService.removeFriend(id, friendId);
+    }
+
+    @GetMapping("/{id}/recommendations")
+    List<Film> getRecommendations(@PathVariable Integer id) {
+        return userService.getRecommendations(id);
     }
 
     @DeleteMapping("/{user-id}")
