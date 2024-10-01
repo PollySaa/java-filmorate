@@ -63,11 +63,33 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopular(@RequestParam(value = "count", required = false) Integer count) {
-        if (count == null) {
-            count = 10;
+    public List<Film> getPopular(
+            @RequestParam(value = "count", required = false) Integer count,
+            @RequestParam(value = "genreId", required = false) Integer genreId,
+            @RequestParam(value = "year", required = false) Integer year
+    ) {
+        Integer validCount = checkCount(count);
+
+        if (genreId != null && year != null) {
+            return filmService.getPopularByGenreAndYear(genreId, year, validCount);
         }
-        return filmService.getTopPopularFilms(count);
+
+        if (genreId != null) {
+            return filmService.getTopPopularFilmsByGenre(genreId, validCount);
+        }
+
+        if (year != null) {
+            return filmService.getTopPopularFilmsByYear(year, validCount);
+        }
+
+        return filmService.getTopPopularFilms(validCount);
+    }
+
+    private Integer checkCount(Integer count) {
+        if (count == null) {
+            return 10; // Значение по умолчанию
+        }
+        return count;
     }
 
     @DeleteMapping("/{id}/like/{user-id}")
