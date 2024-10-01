@@ -14,4 +14,8 @@ public interface FilmStorage {
     Film getFilmById(Integer id);
 
     List<Film> getFilms();
+
+    List<Film> getFilmsByDirector(Integer directorId, String sortBy);
+
+    boolean contains(Integer id);
 }
