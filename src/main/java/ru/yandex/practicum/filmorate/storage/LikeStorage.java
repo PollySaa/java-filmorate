@@ -70,12 +70,11 @@ public class LikeStorage {
                 rs.getInt("id"),
                 rs.getString("name"),
                 rs.getString("description"),
-                rs.getDate("release_Date").toLocalDate(),
+                rs.getDate("release_date").toLocalDate(),
                 rs.getInt("duration"),
                 new HashSet<>(getLikes(rs.getInt("id"))),
                 mpaService.getMpaById(rs.getInt("rating_id")),
-                genreService.getFilmGenres(rs.getInt("id")),
-                new HashSet<>())
+                genreService.getFilmGenres(rs.getInt("id"))
         ), genreId, count);
     }
 
@@ -92,12 +91,11 @@ public class LikeStorage {
                 rs.getInt("id"),
                 rs.getString("name"),
                 rs.getString("description"),
-                rs.getDate("release_Date").toLocalDate(),
+                rs.getDate("release_date").toLocalDate(),
                 rs.getInt("duration"),
                 new HashSet<>(getLikes(rs.getInt("id"))),
                 mpaService.getMpaById(rs.getInt("rating_id")),
-                genreService.getFilmGenres(rs.getInt("id")),
-                new HashSet<>())
+                genreService.getFilmGenres(rs.getInt("id"))
         ), year, count);
     }
 
@@ -115,12 +113,11 @@ public class LikeStorage {
                 rs.getInt("id"),
                 rs.getString("name"),
                 rs.getString("description"),
-                rs.getDate("release_Date").toLocalDate(),
+                rs.getDate("release_date").toLocalDate(),
                 rs.getInt("duration"),
                 new HashSet<>(getLikes(rs.getInt("id"))),
                 mpaService.getMpaById(rs.getInt("rating_id")),
-                genreService.getFilmGenres(rs.getInt("id")),
-                new HashSet<>())
+                genreService.getFilmGenres(rs.getInt("id"))
         ), genreId, year, count);
     }
 
