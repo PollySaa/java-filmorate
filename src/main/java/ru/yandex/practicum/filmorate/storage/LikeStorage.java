@@ -89,6 +89,38 @@ public class LikeStorage {
                 userId, friendId);
     }
 
+    public List<Film> getRecommendations(Integer id) {
+        checkContainsUserById(id);
+        List<Film> films;
+        sql = "SELECT film.* FROM film " +
+                "WHERE film.id IN (" +
+                "SELECT film_id FROM film_like " +
+                "WHERE user_id IN (" +
+                "SELECT FL1.user_id FROM film_like FL1 " +
+                "RIGHT JOIN film_like FL2 ON FL2.film_id = FL1.film_id " +
+                "GROUP BY FL1.user_id, FL2.user_id " +
+                "HAVING FL1.user_id IS NOT NULL AND " +
+                "FL1.user_id <> ? AND FL2.user_id = ? " +
+                "ORDER BY COUNT(FL1.user_id) DESC " +
+                "LIMIT 1" +
+                ") " +
+                "AND film_id NOT IN (" +
+                "SELECT film_id FROM film_like WHERE user_id = ?" +
+                ")" +
+                ")";
+        films = jdbcTemplate.query(sql, (rs, rowNum) -> new Film(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        rs.getDate("release_Date").toLocalDate(),
+                        rs.getInt("duration"),
+                        new HashSet<>(getLikes(rs.getInt("id"))),
+                        mpaService.getMpaById(rs.getInt("rating_id")),
+                        genreService.getFilmGenres(rs.getInt("id"))),
+                id, id, id);
+        return films;
+    }
+
     public void checkContainsUserById(Integer userId) {
         if (userId == null) {
             throw new ValidationException("Передан пустой аргумент!");
