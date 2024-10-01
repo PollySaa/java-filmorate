@@ -89,7 +89,8 @@ public class LikeStorage {
                         rs.getInt("duration"),
                         new HashSet<>(getLikes(rs.getInt("id"))),
                         mpaService.getMpaById(rs.getInt("rating_id")),
-                        genreService.getFilmGenres(rs.getInt("id"))),
+                        genreService.getFilmGenres(rs.getInt("id")),
+                        directorService.getDirectorsByFilmId(rs.getInt("id"))),
                 userId, friendId);
     }
 
@@ -120,7 +121,8 @@ public class LikeStorage {
                         rs.getInt("duration"),
                         new HashSet<>(getLikes(rs.getInt("id"))),
                         mpaService.getMpaById(rs.getInt("rating_id")),
-                        genreService.getFilmGenres(rs.getInt("id"))),
+                        genreService.getFilmGenres(rs.getInt("id")),
+                        directorService.getDirectorsByFilmId(rs.getInt("id"))),
                 id, id, id);
         return films;
     }
