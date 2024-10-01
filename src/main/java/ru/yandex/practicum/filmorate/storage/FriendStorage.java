@@ -16,10 +16,10 @@ import java.util.List;
 public class FriendStorage {
     final JdbcTemplate jdbcTemplate;
     final UserStorage userStorage;
+    final String error = "Пользователь не найден";
     User user;
     User friend;
     String sql;
-    final String error = "Пользователь не найден";
 
     @Autowired
     public FriendStorage(JdbcTemplate jdbcTemplate, @Qualifier("userDbStorage") UserStorage userStorage) {
