@@ -85,6 +85,15 @@ public class FilmController {
         return filmService.getCommonFilms(userId, friendId);
     }
 
+    @GetMapping("/search")
+    public List<Film> searchFilms(@RequestParam(required = false) String query,
+                                  @RequestParam(required = false) String by) {
+        if (!((query == null) && (by == null))) {
+            return filmService.searchFilms(query, by);
+        }
+        return filmService.getTopPopularFilms(null);
+    }
+
     private void validation(Film film) {
         String error;
         if (film.getName() == null || film.getName().isEmpty()) {
