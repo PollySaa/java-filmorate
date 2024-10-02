@@ -60,6 +60,74 @@ public class LikeStorage {
                 count);
     }
 
+    public List<Film> getPopularByGenre(Integer genreId, Integer count) {
+        String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, f.rating_id " +
+                "FROM film f " +
+                "JOIN film_genre fg ON f.id = fg.film_id " +
+                "LEFT JOIN film_like fl ON f.id = fl.film_id " +
+                "WHERE fg.genre_id = ? " +
+                "GROUP BY f.id " +
+                "ORDER BY COUNT(fl.user_id) DESC " +
+                "LIMIT ?";
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> new Film(
+                rs.getInt("id"),
+                rs.getString("name"),
+                rs.getString("description"),
+                rs.getDate("release_Date").toLocalDate(),
+                rs.getInt("duration"),
+                new HashSet<>(getLikes(rs.getInt("id"))),
+                mpaService.getMpaById(rs.getInt("rating_id")),
+                genreService.getFilmGenres(rs.getInt("id")),
+                directorService.getDirectorsByFilmId(rs.getInt("id"))),
+                genreId, count);
+    }
+
+    public List<Film> getPopularByYear(Integer year, Integer count) {
+        String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, f.rating_id " +
+                "FROM film f " +
+                "LEFT JOIN film_like fl ON f.id = fl.film_id " +
+                "WHERE EXTRACT(YEAR FROM f.release_date) = ? " +
+                "GROUP BY f.id " +
+                "ORDER BY COUNT(fl.user_id) DESC " +
+                "LIMIT ?";
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> new Film(
+                rs.getInt("id"),
+                rs.getString("name"),
+                rs.getString("description"),
+                rs.getDate("release_Date").toLocalDate(),
+                rs.getInt("duration"),
+                new HashSet<>(getLikes(rs.getInt("id"))),
+                mpaService.getMpaById(rs.getInt("rating_id")),
+                genreService.getFilmGenres(rs.getInt("id")),
+                directorService.getDirectorsByFilmId(rs.getInt("id"))),
+                year, count);
+    }
+
+    public List<Film> getPopularByGenreAndYear(Integer genreId, Integer year, Integer count) {
+        String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, f.rating_id " +
+                "FROM film f " +
+                "JOIN film_genre fg ON f.id = fg.film_id " +
+                "LEFT JOIN film_like fl ON f.id = fl.film_id " +
+                "WHERE fg.genre_id = ? AND EXTRACT(YEAR FROM f.release_date) = ? " +
+                "GROUP BY f.id " +
+                "ORDER BY COUNT(fl.user_id) DESC " +
+                "LIMIT ?";
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> new Film(
+                rs.getInt("id"),
+                rs.getString("name"),
+                rs.getString("description"),
+                rs.getDate("release_Date").toLocalDate(),
+                rs.getInt("duration"),
+                new HashSet<>(getLikes(rs.getInt("id"))),
+                mpaService.getMpaById(rs.getInt("rating_id")),
+                genreService.getFilmGenres(rs.getInt("id")),
+                directorService.getDirectorsByFilmId(rs.getInt("id"))),
+                genreId, year, count);
+    }
+
     public List<Integer> getLikes(Integer filmId) {
         sql = "SELECT user_id FROM film_like WHERE film_id = ?";
         return jdbcTemplate.query(sql, (rs, rowNum) -> rs.getInt("user_id"), filmId);
