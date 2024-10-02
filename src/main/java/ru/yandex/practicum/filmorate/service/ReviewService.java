@@ -5,7 +5,11 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -18,17 +22,23 @@ public class ReviewService {
     ReviewStorage reviewStorage;
     UserStorage userStorage;
     FilmStorage filmStorage;
+    EventStorage eventStorage;
 
     public ReviewService(@Qualifier("reviewDbStorage") ReviewStorage reviewStorage,
                          @Qualifier("userDbStorage") UserStorage userStorage,
-                         @Qualifier("filmDbStorage") FilmStorage filmStorage) {
+                         @Qualifier("filmDbStorage") FilmStorage filmStorage,
+                         EventStorage eventStorage) {
         this.reviewStorage = reviewStorage;
         this.userStorage = userStorage;
         this.filmStorage = filmStorage;
+        this.eventStorage = eventStorage;
     }
 
     public Review addReview(Review review) {
         performChecks(review);
+        Event event =
+                new Event(System.currentTimeMillis(), review.getUserId(), EventType.REVIEW, Operation.ADD, null, review.getFilmId());
+        eventStorage.addEvent(event);
         return reviewStorage.addReview(review);
     }
 

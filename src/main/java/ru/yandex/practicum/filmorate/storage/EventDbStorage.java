@@ -58,7 +58,7 @@ public class EventDbStorage implements EventStorage {
     @Override
     public Event getEventById(Integer eventId) {
         Event event;
-        SqlRowSet eventRows = jdbcTemplate.queryForRowSet("SELECT * FROM genre WHERE id = ?", eventId);
+        SqlRowSet eventRows = jdbcTemplate.queryForRowSet("SELECT * FROM events WHERE id = ?", eventId);
         if (eventRows.first()) {
             event = new Event(
                     eventRows.getLong("timestamp"),

@@ -2,9 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.model.Event;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
@@ -25,10 +23,16 @@ public class UserService {
     }
 
     public void addFriend(Integer userId, Integer friendId) {
+        Event event =
+                new Event(System.currentTimeMillis(), userId, EventType.FRIEND, Operation.ADD, null, friendId);
+        eventStorage.addEvent(event);
         friendStorage.addFriend(userId, friendId);
     }
 
     public void removeFriend(Integer userId, Integer friendId) {
+        Event event =
+                new Event(System.currentTimeMillis(), userId, EventType.FRIEND, Operation.REMOVE, null, friendId);
+        eventStorage.addEvent(event);
         friendStorage.deleteFriend(userId, friendId);
     }
 
