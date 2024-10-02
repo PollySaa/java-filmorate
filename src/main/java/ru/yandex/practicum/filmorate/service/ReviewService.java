@@ -36,18 +36,26 @@ public class ReviewService {
 
     public Review addReview(Review review) {
         performChecks(review);
-        Event event =
-                new Event(System.currentTimeMillis(), review.getUserId(), EventType.REVIEW, Operation.ADD, null, review.getFilmId());
+        review = reviewStorage.addReview(review);
+        Event event = new Event(System.currentTimeMillis(), review.getUserId(), EventType.REVIEW, Operation.ADD, review.getReviewId(), review.getFilmId());
         eventStorage.addEvent(event);
-        return reviewStorage.addReview(review);
+        return review;
     }
 
     public Review updateReview(Review review) {
         performChecks(review);
-        return reviewStorage.updateReview(review);
+        review = reviewStorage.addReview(review);
+        Event event =
+                new Event(System.currentTimeMillis(), review.getUserId(), EventType.REVIEW, Operation.UPDATE, review.getReviewId(), review.getFilmId());
+        eventStorage.addEvent(event);
+        return review;
     }
 
     public Review deleteReview(Integer id) {
+        Review review = getReviewById(id);
+        Event event =
+                new Event(System.currentTimeMillis(), review.getUserId(), EventType.REVIEW, Operation.REMOVE, id, review.getReviewId());
+        eventStorage.addEvent(event);
         return reviewStorage.deleteReview(id);
     }
 

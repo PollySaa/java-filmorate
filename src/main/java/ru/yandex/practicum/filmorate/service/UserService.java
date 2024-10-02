@@ -30,10 +30,10 @@ public class UserService {
     }
 
     public void removeFriend(Integer userId, Integer friendId) {
+        friendStorage.deleteFriend(userId, friendId);
         Event event =
                 new Event(System.currentTimeMillis(), userId, EventType.FRIEND, Operation.REMOVE, null, friendId);
         eventStorage.addEvent(event);
-        friendStorage.deleteFriend(userId, friendId);
     }
 
     public List<User> getCommonFriends(Integer userId1, Integer userId2) {
