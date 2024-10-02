@@ -37,16 +37,15 @@ public class ReviewService {
     public Review addReview(Review review) {
         performChecks(review);
         review = reviewStorage.addReview(review);
-        Event event = new Event(System.currentTimeMillis(), review.getUserId(), EventType.REVIEW, Operation.ADD, review.getReviewId(), review.getFilmId());
+        Event event = new Event(System.currentTimeMillis(), review.getUserId(), EventType.REVIEW, Operation.ADD, review.getFilmId(), review.getReviewId());
         eventStorage.addEvent(event);
         return review;
     }
 
     public Review updateReview(Review review) {
         performChecks(review);
-        review = reviewStorage.addReview(review);
-        Event event =
-                new Event(System.currentTimeMillis(), review.getUserId(), EventType.REVIEW, Operation.UPDATE, review.getReviewId(), review.getFilmId());
+        review = reviewStorage.updateReview(review);
+        Event event = new Event(System.currentTimeMillis(), review.getUserId(), EventType.REVIEW, Operation.UPDATE, review.getFilmId(), review.getReviewId());
         eventStorage.addEvent(event);
         return review;
     }
