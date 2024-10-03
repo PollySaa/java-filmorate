@@ -157,19 +157,19 @@ public class FilmDbStorage implements FilmStorage {
         List<Film> orderedFilms = new ArrayList<>();
 
         if (sortBy.equals("year")) {
-            String query = "SELECT * FROM film " +
+            sql = "SELECT * FROM film " +
                     "WHERE id IN " +
                     "(SELECT film_id FROM film_directors WHERE director_id = ?) " +
                     "ORDER BY release_date ;";
-            orderedFilms.addAll(jdbcTemplate.query(query, this::mapRowToFilm, directorId));
+            orderedFilms.addAll(jdbcTemplate.query(sql, this::mapRowToFilm, directorId));
         } else if (sortBy.equals("likes")) {
-            String query = "SELECT id, name, description, release_date, duration, rating_id, COUNT(*) AS likes_count FROM film AS f " +
+            sql = "SELECT id, name, description, release_date, duration, rating_id, COUNT(*) AS likes_count FROM film AS f " +
                     "JOIN FILM_LIKE AS fl ON f.id = fl.film_id " +
                     "WHERE f.id IN " +
                     "(SELECT film_id FROM film_directors WHERE director_id = ?) " +
                     "GROUP BY f.id " +
                     "ORDER BY likes_count DESC;";
-            orderedFilms.addAll(jdbcTemplate.query(query, this::mapRowToFilm, directorId));
+            orderedFilms.addAll(jdbcTemplate.query(sql, this::mapRowToFilm, directorId));
         } else {
             throw new ValidationException("Неверный параметр запроса. Возможны варианты: [year, like]");
         }
@@ -183,6 +183,35 @@ public class FilmDbStorage implements FilmStorage {
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, id);
 
         return count > 0;
+    }
+
+    @Override
+    public List<Film> searchFilms(String query, String by) {
+        if (by.equals("title")) {
+            sql = "SELECT * FROM film WHERE name LIKE ? ;";
+
+            return jdbcTemplate.query(sql, new String[]{"%" + query + "%"}, this::mapRowToFilm);
+
+        } else if (by.equals("director")) {
+            sql = "SELECT * FROM film " +
+                    "WHERE id IN " +
+                    "(SELECT film_id FROM film_directors WHERE director_id IN " +
+                    "(SELECT director_id FROM directors WHERE name LIKE ?)) ;";
+
+            return jdbcTemplate.query(sql, new String[]{"%" + query + "%"}, this::mapRowToFilm);
+
+        } else if (by.equals("director,title") || by.equals("title,director")) {
+            sql = "SELECT * FROM film " +
+                    "WHERE id IN " +
+                    "(SELECT film_id FROM film_directors WHERE director_id IN " +
+                    "(SELECT director_id FROM directors WHERE name LIKE ?))" +
+                    "OR name LIKE ? ;";
+
+            return jdbcTemplate.query(sql, new String[]{"%" + query + "%", "%" + query + "%"}, this::mapRowToFilm);
+
+        } else {
+            throw new ValidationException("Поиск осуществляется по критериям director и/или title");
+        }
     }
 
     private Film mapRowToFilm(ResultSet rs, int rn) throws SQLException {
