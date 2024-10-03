@@ -1,4 +1,4 @@
-DROP TABLE IF EXISTS users, mpa, film, genre, film_genre, film_like, friends, directors, film_directors, reviews, review_likes;
+DROP TABLE IF EXISTS users, mpa, film, genre, film_genre, film_like, friends, directors, film_directors, reviews, review_likes, events;
 
 CREATE TABLE IF NOT EXISTS users
 (
@@ -80,4 +80,14 @@ CREATE TABLE IF NOT EXISTS review_likes (
     user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     like_type varchar NOT NULL,
     PRIMARY KEY (review_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS events (
+    timestamp bigint NOT NULL,
+    user_id INT NOT NULL,
+    event_type VARCHAR(10) NOT NULL,
+    operation VARCHAR(10) NOT NULL,
+    event_id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    entity_id INT NOT NULL,
+    CONSTRAINT fk_events_users FOREIGN KEY (user_id) REFERENCES users(id)
 );
