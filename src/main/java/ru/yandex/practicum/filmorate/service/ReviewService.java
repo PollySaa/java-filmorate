@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -16,12 +17,14 @@ import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.util.List;
 
 @Service
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@FieldDefaults(makeFinal = false, level = AccessLevel.PRIVATE)
 public class ReviewService {
-    ReviewStorage reviewStorage;
-    UserStorage userStorage;
-    FilmStorage filmStorage;
-    EventStorage eventStorage;
+    final ReviewStorage reviewStorage;
+    final UserStorage userStorage;
+    final FilmStorage filmStorage;
+    final EventStorage eventStorage;
+    Event event;
+    Review review;
 
     public ReviewService(ReviewStorage reviewStorage, UserStorage userStorage, FilmStorage filmStorage,
                          EventStorage eventStorage) {
@@ -34,7 +37,8 @@ public class ReviewService {
     public Review addReview(Review review) {
         performChecks(review);
         review = reviewStorage.addReview(review);
-        Event event = new Event(System.currentTimeMillis(), review.getUserId(), EventType.REVIEW, Operation.ADD, review.getFilmId(), review.getReviewId());
+        event = new Event(System.currentTimeMillis(), review.getUserId(), EventType.REVIEW, Operation.ADD,
+                review.getFilmId(), review.getReviewId());
         eventStorage.addEvent(event);
         return review;
     }
@@ -42,15 +46,16 @@ public class ReviewService {
     public Review updateReview(Review review) {
         performChecks(review);
         review = reviewStorage.updateReview(review);
-        Event event = new Event(System.currentTimeMillis(), review.getUserId(), EventType.REVIEW, Operation.UPDATE, review.getFilmId(), review.getReviewId());
+        event = new Event(System.currentTimeMillis(), review.getUserId(), EventType.REVIEW, Operation.UPDATE,
+                review.getFilmId(), review.getReviewId());
         eventStorage.addEvent(event);
         return review;
     }
 
     public Review deleteReview(Integer id) {
-        Review review = getReviewById(id);
-        Event event =
-                new Event(System.currentTimeMillis(), review.getUserId(), EventType.REVIEW, Operation.REMOVE, id, review.getReviewId());
+        review = getReviewById(id);
+        event = new Event(System.currentTimeMillis(), review.getUserId(), EventType.REVIEW, Operation.REMOVE, id,
+                review.getReviewId());
         eventStorage.addEvent(event);
         return reviewStorage.deleteReview(id);
     }
@@ -64,25 +69,25 @@ public class ReviewService {
     }
 
     public void addLike(Integer reviewId, Integer userId) {
-        Review review = reviewStorage.getReviewById(reviewId);
+        review = reviewStorage.getReviewById(reviewId);
         performChecks(review);
         reviewStorage.addLike(reviewId, userId);
     }
 
     public void addDislike(Integer reviewId, Integer userId) {
-        Review review = reviewStorage.getReviewById(reviewId);
+        review = reviewStorage.getReviewById(reviewId);
         performChecks(review);
         reviewStorage.addDislike(reviewId, userId);
     }
 
     public void removeLike(Integer reviewId, Integer userId) {
-        Review review = reviewStorage.getReviewById(reviewId);
+        review = reviewStorage.getReviewById(reviewId);
         performChecks(review);
         reviewStorage.removeLike(reviewId, userId);
     }
 
     public void removeDislike(Integer reviewId, Integer userId) {
-        Review review = reviewStorage.getReviewById(reviewId);
+        review = reviewStorage.getReviewById(reviewId);
         performChecks(review);
         reviewStorage.removeDislike(reviewId, userId);
     }

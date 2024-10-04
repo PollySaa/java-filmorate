@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -13,19 +15,22 @@ import ru.yandex.practicum.filmorate.storage.*;
 
 import java.util.List;
 
+@FieldDefaults(makeFinal = false, level = AccessLevel.PRIVATE)
 @Service
 public class FilmService {
-    private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
-    private final LikeStorage likeStorage;
-    private final EventStorage eventStorage;
-    private final String errorUser = "Пользователь не найден";
-    private final String errorFilm = "Фильм не найден";
-    private Film film;
+    final FilmStorage filmStorage;
+    final UserStorage userStorage;
+    final LikeStorage likeStorage;
+    final EventStorage eventStorage;
+    final String errorUser = "Пользователь не найден";
+    final String errorFilm = "Фильм не найден";
+    final String errorCount = "Некорректное значение параметра count";
+    Film film;
+    Event event;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage,
-                       LikeStorage likeStorage, EventStorage eventStorage) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage, LikeStorage likeStorage,
+                       EventStorage eventStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.likeStorage = likeStorage;
@@ -40,7 +45,8 @@ public class FilmService {
                 if (!likeStorage.existsLike(filmId, userId)) {
                     likeStorage.addLike(filmId, userId);
 
-                    Event event = new Event(System.currentTimeMillis(), userId, EventType.LIKE, Operation.ADD, null, filmId);
+                    event = new Event(System.currentTimeMillis(), userId, EventType.LIKE, Operation.ADD, filmId,
+                            filmId);
                     eventStorage.addEvent(event);
                 }
             } else {
@@ -62,8 +68,7 @@ public class FilmService {
         } else {
             throw new NotFoundException(errorFilm);
         }
-        Event event =
-                new Event(System.currentTimeMillis(), userId, EventType.LIKE, Operation.REMOVE, null, filmId);
+        event = new Event(System.currentTimeMillis(), userId, EventType.LIKE, Operation.REMOVE, null, filmId);
         eventStorage.addEvent(event);
     }
 
@@ -72,7 +77,7 @@ public class FilmService {
             count = 10;
         }
         if (count < 1) {
-            throw new ValidationException("Некорректное значение параметра count");
+            throw new ValidationException(errorCount);
         }
         return likeStorage.getPopular(count);
     }
@@ -82,7 +87,7 @@ public class FilmService {
             count = 10;
         }
         if (count < 1) {
-            throw new ValidationException("Некорректное значение параметра count");
+            throw new ValidationException(errorCount);
         }
         return likeStorage.getPopularByGenre(genreId, count);
     }
@@ -92,14 +97,14 @@ public class FilmService {
             count = 10;
         }
         if (count < 1) {
-            throw new ValidationException("Некорректное значение параметра count");
+            throw new ValidationException(errorCount);
         }
         return likeStorage.getPopularByYear(year, count);
     }
 
     public List<Film> getPopularByGenreAndYear(Integer genreId, Integer year, Integer count) {
         if (count == null || count < 1) {
-            throw new ValidationException("Некорректное значение параметра count");
+            throw new ValidationException(errorCount);
         }
         return likeStorage.getPopularByGenreAndYear(genreId, year, count);
     }

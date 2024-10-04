@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -19,14 +21,16 @@ import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class EventDbStorage implements EventStorage {
-    private final JdbcTemplate jdbcTemplate;
-    private final UserStorage userStorage;
-    private final NamedParameterJdbcOperations jdbcOperations;
+    final JdbcTemplate jdbcTemplate;
+    final UserStorage userStorage;
+    final NamedParameterJdbcOperations jdbcOperations;
+    String sql;
 
     @Override
     public Event addEvent(Event event) {
-        String sql = "INSERT INTO EVENTS(timestamp, user_id, event_type, operation, entity_id) " +
+        sql = "INSERT INTO events(timestamp, user_id, event_type, operation, entity_id) " +
                 "VALUES (:timestamp, :userId, :eventType, :operation, :entityId) ";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         MapSqlParameterSource map = new MapSqlParameterSource();
@@ -42,7 +46,7 @@ public class EventDbStorage implements EventStorage {
 
     @Override
     public Event updateEvent(Event event) {
-        String sql = "UPDATE EVENTS SET timestamp = :timestamp, user_id = :userID, event_type = :eventType, " +
+        sql = "UPDATE events SET timestamp = :timestamp, user_id = :userId, event_type = :eventType, " +
                 "operation = :operation, entity_id = :entityId WHERE event_id = :eventId";
         MapSqlParameterSource map = new MapSqlParameterSource();
         map.addValue("timestamp", event.getTimestamp());

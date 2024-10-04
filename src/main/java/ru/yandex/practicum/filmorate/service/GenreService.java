@@ -1,5 +1,8 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -9,14 +12,11 @@ import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@AllArgsConstructor
 @Service
 public class GenreService {
-    private final GenreStorage genreStorage;
-
-    @Autowired
-    public GenreService(GenreStorage genreStorage) {
-        this.genreStorage = genreStorage;
-    }
+    GenreStorage genreStorage;
 
     public Collection<Genre> getGenres() {
         return genreStorage.getGenres().stream()

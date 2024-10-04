@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
@@ -13,23 +14,29 @@ import java.sql.SQLException;
 import java.util.List;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@AllArgsConstructor
 @Repository
 public class DirectorStorage {
     final JdbcTemplate jdbcTemplate;
+    String query;
+    String queryToDelete;
+
+    @Autowired
+    public DirectorStorage(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     public List<Director> getDirectors() {
-        String query = "SELECT * FROM directors ;";
+        query = "SELECT * FROM directors ;";
         return jdbcTemplate.query(query, this::mapRowToDirector);
     }
 
     public Director getDirectorById(Integer id) {
-        String query = "SELECT * FROM directors WHERE director_id = ? ;";
+        query = "SELECT * FROM directors WHERE director_id = ? ;";
         return jdbcTemplate.queryForObject(query, this::mapRowToDirector, id);
     }
 
     public List<Director> getDirectorsByFilmId(Integer filmId) {
-        String query = "SELECT * FROM directors " +
+        query = "SELECT * FROM directors " +
                 "WHERE director_id IN " +
                 "(SELECT director_id FROM film_directors WHERE film_id = ?) ;";
         return jdbcTemplate.query(query, this::mapRowToDirector, filmId);
@@ -46,7 +53,7 @@ public class DirectorStorage {
     }
 
     public Director updateDirector(Director director) {
-        String query = "UPDATE directors SET name = ? WHERE director_id = ? ;";
+        query = "UPDATE directors SET name = ? WHERE director_id = ? ;";
         jdbcTemplate.update(query, director.getName(), director.getId());
 
         return director;
@@ -54,14 +61,14 @@ public class DirectorStorage {
 
     public Director deleteDirector(Integer id) {
         Director director = getDirectorById(id);
-        String query = "DELETE FROM directors WHERE director_id = ? ;";
+        query = "DELETE FROM directors WHERE director_id = ? ;";
         jdbcTemplate.update(query, id);
 
         return director;
     }
 
     public void putDirector(Integer directorId, Integer filmId) {
-        String queryToDelete = "DELETE FROM film_directors WHERE film_id = ? ;";
+        queryToDelete = "DELETE FROM film_directors WHERE film_id = ? ;";
         jdbcTemplate.update(queryToDelete, filmId);
 
         String queryToUpdate = "INSERT INTO film_directors (director_id, film_id) VALUES (?, ?) ;";
@@ -69,12 +76,12 @@ public class DirectorStorage {
     }
 
     public void clearDirectors(Integer filmId) {
-        String queryToDelete = "DELETE FROM film_directors WHERE film_id = ? ;";
+        queryToDelete = "DELETE FROM film_directors WHERE film_id = ? ;";
         jdbcTemplate.update(queryToDelete, filmId);
     }
 
     public boolean contains(Integer id) {
-        String query = "SELECT COUNT(*) FROM directors WHERE director_id = ? ;";
+        query = "SELECT COUNT(*) FROM directors WHERE director_id = ? ;";
         Integer count = jdbcTemplate.queryForObject(query, Integer.class, id);
 
         return count > 0;

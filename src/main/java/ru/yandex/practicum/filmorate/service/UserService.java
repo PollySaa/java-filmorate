@@ -1,5 +1,8 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.*;
@@ -9,13 +12,14 @@ import ru.yandex.practicum.filmorate.storage.LikeStorage;
 
 import java.util.List;
 
+@FieldDefaults(makeFinal = false, level = AccessLevel.PRIVATE)
 @Service
 public class UserService {
-    private final FriendStorage friendStorage;
-    private final LikeStorage likeStorage;
-    private final EventStorage eventStorage;
+    final FriendStorage friendStorage;
+    final LikeStorage likeStorage;
+    final EventStorage eventStorage;
+    Event event;
 
-    @Autowired
     public UserService(FriendStorage friendStorage, LikeStorage likeStorage, EventStorage eventStorage) {
         this.friendStorage = friendStorage;
         this.likeStorage = likeStorage;
@@ -23,16 +27,15 @@ public class UserService {
     }
 
     public void addFriend(Integer userId, Integer friendId) {
-        Event event =
-                new Event(System.currentTimeMillis(), userId, EventType.FRIEND, Operation.ADD, null, friendId);
+        event = new Event(System.currentTimeMillis(), userId, EventType.FRIEND, Operation.ADD, null, friendId);
         eventStorage.addEvent(event);
         friendStorage.addFriend(userId, friendId);
     }
 
     public void removeFriend(Integer userId, Integer friendId) {
         friendStorage.deleteFriend(userId, friendId);
-        Event event =
-                new Event(System.currentTimeMillis(), userId, EventType.FRIEND, Operation.REMOVE, null, friendId);
+        event = new Event(System.currentTimeMillis(), userId, EventType.FRIEND, Operation.REMOVE, null,
+                        friendId);
         eventStorage.addEvent(event);
     }
 

@@ -1,7 +1,9 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import java.util.HashMap;
@@ -9,6 +11,8 @@ import java.util.Map;
 
 @Data
 @FieldDefaults(makeFinal = false, level = AccessLevel.PRIVATE)
+@NoArgsConstructor
+@AllArgsConstructor
 public class Review {
     Integer reviewId;
     String content;
@@ -16,15 +20,6 @@ public class Review {
     Integer userId;
     Integer filmId;
     int useful;
-
-    public Review(Integer reviewId, String content, Boolean isPositive, Integer userId, Integer filmId, int useful) {
-        this.reviewId = reviewId;
-        this.content = content;
-        this.isPositive = isPositive;
-        this.userId = userId;
-        this.filmId = filmId;
-        this.useful = useful;
-    }
 
     public Map<String, Object> toMap() {
         Map<String, Object> values = new HashMap<>();

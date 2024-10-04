@@ -18,6 +18,7 @@ import java.util.Set;
 @Service
 public class DirectorService {
     DirectorStorage directorStorage;
+    final String error = "Пользователь не найден";
 
     public List<Director> getDirectors() {
         return directorStorage.getDirectors();
@@ -25,7 +26,7 @@ public class DirectorService {
 
     public Director getDirectorById(Integer id) {
         if (!directorStorage.contains(id)) {
-            throw new NotFoundException("По данному id режиссёр не найден");
+            throw new NotFoundException(error);
         }
         return directorStorage.getDirectorById(id);
     }
@@ -36,7 +37,7 @@ public class DirectorService {
 
     public Director addDirector(Director director) {
         if (director.getName() == null || director.getName().trim().isEmpty()) {
-            throw new ValidationException("По данному id режиссёр не найден");
+            throw new ValidationException(error);
         }
         return directorStorage.addDirector(director);
     }
@@ -47,21 +48,21 @@ public class DirectorService {
 
     public Director updateDirector(Director director) {
         if (!directorStorage.contains(director.getId())) {
-            throw new NotFoundException("По данному id режиссёр не найден");
+            throw new NotFoundException(error);
         }
         return directorStorage.updateDirector(director);
     }
 
     public Director deleteDirector(Integer id) {
         if (!directorStorage.contains(id)) {
-            throw new NotFoundException("По данному id режиссёр не найден");
+            throw new NotFoundException(error);
         }
         return directorStorage.deleteDirector(id);
     }
 
     public void putDirector(Integer directorId, Integer filmId) {
         if (!directorStorage.contains(directorId)) {
-            throw new NotFoundException("По данному id режиссёр не найден");
+            throw new NotFoundException(error);
         }
         directorStorage.putDirector(directorId, filmId);
     }

@@ -12,30 +12,31 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(makeFinal = false, level = AccessLevel.PRIVATE)
 @RestController
+@RequestMapping("/directors")
 public class DirectorController {
     DirectorService directorService;
 
-    @GetMapping("/directors")
+    @GetMapping
     public List<Director> getDirectors() {
         return directorService.getDirectors();
     }
 
-    @GetMapping("/directors/{id}")
+    @GetMapping("/{id}")
     public Director getDirectorById(@PathVariable Integer id) {
         return directorService.getDirectorById(id);
     }
 
-    @PostMapping("/directors")
+    @PostMapping
     public Director addDirector(@RequestBody Director director) {
         return directorService.addDirector(director);
     }
 
-    @PutMapping("/directors")
+    @PutMapping
     public Director updateDirector(@RequestBody Director director) {
         return directorService.updateDirector(director);
     }
 
-    @DeleteMapping("/directors/{id}")
+    @DeleteMapping("/{id}")
     public Director deleteDirector(@PathVariable Integer id) {
         return directorService.deleteDirector(id);
     }

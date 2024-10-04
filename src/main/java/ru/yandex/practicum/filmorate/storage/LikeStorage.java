@@ -61,7 +61,7 @@ public class LikeStorage {
     }
 
     public List<Film> getPopularByGenre(Integer genreId, Integer count) {
-        String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, f.rating_id " +
+        sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, f.rating_id " +
                 "FROM film f " +
                 "JOIN film_genre fg ON f.id = fg.film_id " +
                 "LEFT JOIN film_like fl ON f.id = fl.film_id " +
@@ -84,7 +84,7 @@ public class LikeStorage {
     }
 
     public List<Film> getPopularByYear(Integer year, Integer count) {
-        String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, f.rating_id " +
+        sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, f.rating_id " +
                 "FROM film f " +
                 "LEFT JOIN film_like fl ON f.id = fl.film_id " +
                 "WHERE EXTRACT(YEAR FROM f.release_date) = ? " +
@@ -106,7 +106,7 @@ public class LikeStorage {
     }
 
     public List<Film> getPopularByGenreAndYear(Integer genreId, Integer year, Integer count) {
-        String sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, f.rating_id " +
+        sql = "SELECT f.id, f.name, f.description, f.release_date, f.duration, f.rating_id " +
                 "FROM film f " +
                 "JOIN film_genre fg ON f.id = fg.film_id " +
                 "LEFT JOIN film_like fl ON f.id = fl.film_id " +
@@ -196,7 +196,7 @@ public class LikeStorage {
     }
 
     public boolean existsLike(Integer filmId, Integer userId) {
-        String sql = "SELECT COUNT(*) FROM film_like WHERE film_id = ? AND user_id = ?";
+        sql = "SELECT COUNT(*) FROM film_like WHERE film_id = ? AND user_id = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, filmId, userId);
         return count != null && count > 0;
     }
@@ -205,7 +205,7 @@ public class LikeStorage {
         if (userId == null) {
             throw new ValidationException("Передан пустой аргумент!");
         }
-        String sql = "SELECT COUNT(id) FROM users WHERE id = ?";
+        sql = "SELECT COUNT(id) FROM users WHERE id = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, userId);
         if (count == null || count == 0) {
             throw new NotFoundException("Пользователь с id = " + userId + " не найден!");

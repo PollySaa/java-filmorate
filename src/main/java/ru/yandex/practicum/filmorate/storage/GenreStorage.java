@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
@@ -7,14 +9,14 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Component
 public class GenreStorage {
-    private final JdbcTemplate jdbcTemplate;
-    private final GenreMapper genreMapper;
+    final JdbcTemplate jdbcTemplate;
+    final GenreMapper genreMapper;
+    String sql;
 
     @Autowired
     public GenreStorage(JdbcTemplate jdbcTemplate) {
@@ -23,12 +25,12 @@ public class GenreStorage {
     }
 
     public List<Genre> getGenres() {
-        String sql = "SELECT * FROM genre";
+        sql = "SELECT * FROM genre";
         return jdbcTemplate.query(sql, genreMapper);
     }
 
     public Genre getGenreById(Integer id) {
-        String sql = "SELECT * FROM genre WHERE id = ?";
+        sql = "SELECT * FROM genre WHERE id = ?";
         List<Genre> genres = jdbcTemplate.query(sql, genreMapper, id);
         if (genres.isEmpty()) {
             throw new NotFoundException("Жанр с id = " + id + " не найден!");
@@ -50,7 +52,7 @@ public class GenreStorage {
     }
 
     public List<Genre> getFilmGenres(Integer filmId) {
-        String sql = "SELECT * FROM genre WHERE id IN (SELECT genre_id FROM film_genre WHERE film_id = ?)";
+        sql = "SELECT * FROM genre WHERE id IN (SELECT genre_id FROM film_genre WHERE film_id = ?)";
         return jdbcTemplate.query(sql, genreMapper, filmId);
     }
 }
