@@ -96,13 +96,24 @@ public class FilmDbStorage implements FilmStorage {
             throw new NotFoundException("Фильм с id = " + film.getId() + " не найден для обновления!");
         }
 
-        for (Director director : film.getDirectors()) {
-            if (!directorService.exists(director.getId())) {
-                throw new NotFoundException("По данному id режиссёр не найден");
+        genreService.deleteGenre(film.getId());
+        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
+            for (Genre genre : film.getGenres()) {
+                genre.setName(genreService.getGenreById(genre.getId()).getName());
             }
-            director.setName(directorService.getDirectorById(director.getId()).getName());
-            directorService.putDirector(director.getId(), film.getId());
+            genreService.putGenres(film);
         }
+
+        if (!film.getDirectors().isEmpty()) {
+            for (Director director : film.getDirectors()) {
+                if (!directorService.exists(director.getId())) {
+                    throw new NotFoundException("По данному id режиссёр не найден");
+                }
+                director.setName(directorService.getDirectorById(director.getId()).getName());
+                directorService.putDirector(director.getId(), film.getId());
+            }
+        }
+
         return film;
     }
 
@@ -111,7 +122,7 @@ public class FilmDbStorage implements FilmStorage {
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet("SELECT * FROM film WHERE id = ?", id);
         if (filmRows.first()) {
             Mpa mpa = mpaService.getMpaById(filmRows.getInt("rating_id"));
-            Set<Genre> genres = genreService.getFilmGenres(id);
+            List<Genre> genres = genreService.getFilmGenres(id);
             film = new Film(
                     filmRows.getInt("id"),
                     filmRows.getString("name"),
@@ -122,11 +133,9 @@ public class FilmDbStorage implements FilmStorage {
                     mpa,
                     genres,
                     directorService.getDirectorsByFilmId(filmRows.getInt("id")));
+
         } else {
             throw new NotFoundException("Фильм с id = " + id + " не найден!");
-        }
-        if (film.getGenres() != null && film.getGenres().isEmpty()) {
-            film.setGenres(null);
         }
         return film;
     }

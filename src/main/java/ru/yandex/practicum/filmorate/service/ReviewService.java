@@ -24,9 +24,7 @@ public class ReviewService {
     FilmStorage filmStorage;
     EventStorage eventStorage;
 
-    public ReviewService(@Qualifier("reviewDbStorage") ReviewStorage reviewStorage,
-                         @Qualifier("userDbStorage") UserStorage userStorage,
-                         @Qualifier("filmDbStorage") FilmStorage filmStorage,
+    public ReviewService(ReviewStorage reviewStorage, UserStorage userStorage, FilmStorage filmStorage,
                          EventStorage eventStorage) {
         this.reviewStorage = reviewStorage;
         this.userStorage = userStorage;
@@ -67,22 +65,26 @@ public class ReviewService {
     }
 
     public void addLike(Integer reviewId, Integer userId) {
-        performChecks(reviewStorage.getReviewById(reviewId));
+        Review review = reviewStorage.getReviewById(reviewId);
+        performChecks(review);
         reviewStorage.addLike(reviewId, userId);
     }
 
     public void addDislike(Integer reviewId, Integer userId) {
-        performChecks(reviewStorage.getReviewById(reviewId));
+        Review review = reviewStorage.getReviewById(reviewId);
+        performChecks(review);
         reviewStorage.addDislike(reviewId, userId);
     }
 
     public void removeLike(Integer reviewId, Integer userId) {
-        performChecks(reviewStorage.getReviewById(reviewId));
+        Review review = reviewStorage.getReviewById(reviewId);
+        performChecks(review);
         reviewStorage.removeLike(reviewId, userId);
     }
 
     public void removeDislike(Integer reviewId, Integer userId) {
-        performChecks(reviewStorage.getReviewById(reviewId));
+        Review review = reviewStorage.getReviewById(reviewId);
+        performChecks(review);
         reviewStorage.removeDislike(reviewId, userId);
     }
 

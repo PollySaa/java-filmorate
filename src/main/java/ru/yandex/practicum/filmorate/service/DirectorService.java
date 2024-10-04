@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.DirectorStorage;
 
@@ -34,6 +35,9 @@ public class DirectorService {
     }
 
     public Director addDirector(Director director) {
+        if (director.getName() == null || director.getName().trim().isEmpty()) {
+            throw new ValidationException("По данному id режиссёр не найден");
+        }
         return directorStorage.addDirector(director);
     }
 

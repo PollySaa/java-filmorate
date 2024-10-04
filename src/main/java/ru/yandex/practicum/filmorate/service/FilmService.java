@@ -18,21 +18,17 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final LikeStorage likeStorage;
-    private final DirectorStorage directorStorage;
     private final EventStorage eventStorage;
     private final String errorUser = "Пользователь не найден";
     private final String errorFilm = "Фильм не найден";
     private Film film;
 
     @Autowired
-    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
-                       @Qualifier("userDbStorage") UserStorage userStorage,
-                       LikeStorage likeStorage, DirectorStorage directorStorage,
-                       EventStorage eventStorage) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage,
+                       LikeStorage likeStorage, EventStorage eventStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.likeStorage = likeStorage;
-        this.directorStorage = directorStorage;
         this.eventStorage = eventStorage;
     }
 

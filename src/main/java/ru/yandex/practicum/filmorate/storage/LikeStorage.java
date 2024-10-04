@@ -71,15 +71,15 @@ public class LikeStorage {
                 "LIMIT ?";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> new Film(
-                rs.getInt("id"),
-                rs.getString("name"),
-                rs.getString("description"),
-                rs.getDate("release_Date").toLocalDate(),
-                rs.getInt("duration"),
-                new HashSet<>(getLikes(rs.getInt("id"))),
-                mpaService.getMpaById(rs.getInt("rating_id")),
-                genreService.getFilmGenres(rs.getInt("id")),
-                directorService.getDirectorsByFilmId(rs.getInt("id"))),
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("description"),
+                        rs.getDate("release_Date").toLocalDate(),
+                        rs.getInt("duration"),
+                        new HashSet<>(getLikes(rs.getInt("id"))),
+                        mpaService.getMpaById(rs.getInt("rating_id")),
+                        genreService.getFilmGenres(rs.getInt("id")),
+                        directorService.getDirectorsByFilmId(rs.getInt("id"))),
                 genreId, count);
     }
 

@@ -29,7 +29,7 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public Review addReview(Review review) {
-        if (review.getUserId() != null) {
+        if (review.getUserId() != null && review.getFilmId() != null) {
             SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                     .withTableName("reviews")
                     .usingGeneratedKeyColumns("review_id");
@@ -43,13 +43,11 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public Review updateReview(Review review) {
-        sql = "UPDATE reviews SET content = ?, is_positive = ?, user_id = ?, film_id = ?, useful = ?" +
+        sql = "UPDATE reviews SET content = ?, is_positive = ?, useful = ?" +
                 " WHERE review_id = ?";
         jdbcTemplate.update(sql,
                 review.getContent(),
                 review.getIsPositive(),
-                review.getUserId(),
-                review.getFilmId(),
                 review.getUseful(),
                 review.getReviewId());
         log.info("Отзыв с id = {} был обновлён", review.getReviewId());

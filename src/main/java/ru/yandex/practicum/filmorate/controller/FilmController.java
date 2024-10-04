@@ -81,7 +81,7 @@ public class FilmController {
 
     private Integer checkCount(Integer count) {
         if (count == null) {
-            return 10; // Значение по умолчанию
+            return 10;
         }
         return count;
     }
