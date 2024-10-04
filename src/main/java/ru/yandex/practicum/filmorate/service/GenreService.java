@@ -29,6 +29,10 @@ public class GenreService {
     }
 
     public void putGenres(Film film) {
+        List<Genre> distinct = film.getGenres().stream().distinct().toList();
+
+        film.getGenres().clear();
+        film.setGenres(distinct);
         genreStorage.add(film);
     }
 
@@ -39,4 +43,5 @@ public class GenreService {
     public List<Genre> getFilmGenres(Integer filmId) {
         return new ArrayList<>(genreStorage.getFilmGenres(filmId));
     }
+
 }

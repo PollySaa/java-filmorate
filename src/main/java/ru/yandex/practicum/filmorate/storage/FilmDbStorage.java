@@ -172,17 +172,16 @@ public class FilmDbStorage implements FilmStorage {
                     "ORDER BY release_date ;";
             orderedFilms.addAll(jdbcTemplate.query(sql, this::mapRowToFilm, directorId));
         } else if (sortBy.equals("likes")) {
-            sql = "SELECT id, name, description, release_date, duration, rating_id, COUNT(*) AS likes_count FROM film AS f " +
-                    "JOIN FILM_LIKE AS fl ON f.id = fl.film_id " +
+            sql = "SELECT id, name, description, release_date, duration, rating_id, COUNT(fl.film_id) AS likes_count FROM film AS f " +
+                    "JOIN film_like AS fl ON f.id = fl.film_id " +
                     "WHERE f.id IN " +
                     "(SELECT film_id FROM film_directors WHERE director_id = ?) " +
                     "GROUP BY f.id " +
-                    "ORDER BY likes_count DESC;";
+                    "ORDER BY likes_count DESC ";
             orderedFilms.addAll(jdbcTemplate.query(sql, this::mapRowToFilm, directorId));
         } else {
             throw new ValidationException("Неверный параметр запроса. Возможны варианты: [year, like]");
         }
-
         return orderedFilms;
     }
 
