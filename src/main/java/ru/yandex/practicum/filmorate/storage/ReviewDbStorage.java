@@ -83,14 +83,11 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public List<Review> getReviewsByIdLimited(Integer filmId, int count) {
         if (filmId == null) {
-            sql = "SELECT * FROM reviews " +
-                    "ORDER BY (useful) DESC ";
-            return jdbcTemplate.query(sql, this::mapRowToReview);
+            sql = "SELECT * FROM reviews ORDER BY useful DESC LIMIT ?";
+            return jdbcTemplate.query(sql, this::mapRowToReview, count);
         }
 
-        sql = "SELECT * FROM reviews " +
-                "WHERE film_id = ? " +
-                "ORDER BY (useful) DESC limit ?";
+        sql = "SELECT * FROM reviews WHERE film_id = ? ORDER BY useful DESC LIMIT ?";
         return jdbcTemplate.query(sql, this::mapRowToReview, filmId, count);
     }
 

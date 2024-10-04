@@ -32,7 +32,7 @@ public class ReviewController {
     }
 
     @GetMapping
-    public List<Review> getReviewsByIdLimited(@RequestParam(defaultValue = "0") Integer filmId,
+    public List<Review> getReviewsByIdLimited(Integer filmId,
                                               @RequestParam(defaultValue = "10") int count) {
         return reviewService.getReviewsByIdLimited(filmId, count);
     }

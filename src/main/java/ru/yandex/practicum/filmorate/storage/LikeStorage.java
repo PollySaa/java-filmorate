@@ -195,6 +195,12 @@ public class LikeStorage {
         return films;
     }
 
+    public boolean existsLike(Integer filmId, Integer userId) {
+        String sql = "SELECT COUNT(*) FROM film_like WHERE film_id = ? AND user_id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, filmId, userId);
+        return count != null && count > 0;
+    }
+
     public void checkContainsUserById(Integer userId) {
         if (userId == null) {
             throw new ValidationException("Передан пустой аргумент!");

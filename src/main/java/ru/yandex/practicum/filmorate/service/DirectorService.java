@@ -65,4 +65,8 @@ public class DirectorService {
         }
         directorStorage.putDirector(directorId, filmId);
     }
+
+    public void clearDirectors(Integer filmId) {
+        directorStorage.clearDirectors(filmId);
+    }
 }

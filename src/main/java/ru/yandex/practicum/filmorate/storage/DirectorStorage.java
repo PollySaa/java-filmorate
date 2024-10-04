@@ -68,6 +68,11 @@ public class DirectorStorage {
         jdbcTemplate.update(queryToUpdate, directorId, filmId);
     }
 
+    public void clearDirectors(Integer filmId) {
+        String queryToDelete = "DELETE FROM film_directors WHERE film_id = ? ;";
+        jdbcTemplate.update(queryToDelete, filmId);
+    }
+
     public boolean contains(Integer id) {
         String query = "SELECT COUNT(*) FROM directors WHERE director_id = ? ;";
         Integer count = jdbcTemplate.queryForObject(query, Integer.class, id);

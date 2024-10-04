@@ -36,16 +36,19 @@ public class FilmService {
         film = filmStorage.getFilmById(filmId);
         if (film != null) {
             if (userStorage.getUserById(userId) != null) {
-                likeStorage.addLike(filmId, userId);
+
+                if (!likeStorage.existsLike(filmId, userId)) {
+                    likeStorage.addLike(filmId, userId);
+
+                    Event event = new Event(System.currentTimeMillis(), userId, EventType.LIKE, Operation.ADD, null, filmId);
+                    eventStorage.addEvent(event);
+                }
             } else {
                 throw new NotFoundException(errorUser);
             }
         } else {
             throw new NotFoundException(errorFilm);
         }
-        Event event =
-                new Event(System.currentTimeMillis(), userId, EventType.LIKE, Operation.ADD, null, filmId);
-        eventStorage.addEvent(event);
     }
 
     public void removeLike(Integer userId, Integer filmId) {

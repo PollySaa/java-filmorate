@@ -112,6 +112,8 @@ public class FilmDbStorage implements FilmStorage {
                 director.setName(directorService.getDirectorById(director.getId()).getName());
                 directorService.putDirector(director.getId(), film.getId());
             }
+        } else {
+            directorService.clearDirectors(film.getId());
         }
 
         return film;
