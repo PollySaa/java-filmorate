@@ -197,27 +197,29 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> searchFilms(String query, String by) {
-        if (by.equals("title")) {
-            sql = "SELECT * FROM film WHERE name LIKE ? ;";
+        String lowerQuery = query.toLowerCase();
 
-            return jdbcTemplate.query(sql, new String[]{"%" + query + "%"}, this::mapRowToFilm);
+        if (by.equals("title")) {
+            sql = "SELECT * FROM film WHERE LOWER(name) LIKE ? ;";
+
+            return jdbcTemplate.query(sql, new String[]{"%" + lowerQuery + "%"}, this::mapRowToFilm);
 
         } else if (by.equals("director")) {
             sql = "SELECT * FROM film " +
                     "WHERE id IN " +
                     "(SELECT film_id FROM film_directors WHERE director_id IN " +
-                    "(SELECT director_id FROM directors WHERE name LIKE ?)) ;";
+                    "(SELECT director_id FROM directors WHERE LOWER(name) LIKE ?)) ;";
 
-            return jdbcTemplate.query(sql, new String[]{"%" + query + "%"}, this::mapRowToFilm);
+            return jdbcTemplate.query(sql, new String[]{"%" + lowerQuery + "%"}, this::mapRowToFilm);
 
         } else if (by.equals("director,title") || by.equals("title,director")) {
             sql = "SELECT * FROM film " +
                     "WHERE id IN " +
                     "(SELECT film_id FROM film_directors WHERE director_id IN " +
-                    "(SELECT director_id FROM directors WHERE name LIKE ?))" +
-                    "OR name LIKE ? ;";
+                    "(SELECT director_id FROM directors WHERE LOWER(name) LIKE ?))" +
+                    "OR LOWER(name) LIKE ? ;";
 
-            return jdbcTemplate.query(sql, new String[]{"%" + query + "%", "%" + query + "%"}, this::mapRowToFilm);
+            return jdbcTemplate.query(sql, new String[]{"%" + lowerQuery + "%", "%" + lowerQuery + "%"}, this::mapRowToFilm);
 
         } else {
             throw new ValidationException("Поиск осуществляется по критериям director и/или title");
