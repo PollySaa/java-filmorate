@@ -20,6 +20,7 @@ import ru.yandex.practicum.filmorate.service.MpaService;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Component("filmDbStorage")
@@ -164,27 +165,19 @@ public class FilmDbStorage implements FilmStorage {
         if (!directorService.exists(directorId)) {
             throw new NotFoundException("По данному id режиссёр не найден");
         }
-
-        List<Film> orderedFilms = new ArrayList<>();
-
-        if (sortBy.equals("year")) {
-            sql = "SELECT * FROM film " +
-                    "WHERE id IN " +
-                    "(SELECT film_id FROM film_directors WHERE director_id = ?) " +
-                    "ORDER BY release_date ;";
-            orderedFilms.addAll(jdbcTemplate.query(sql, this::mapRowToFilm, directorId));
-        } else if (sortBy.equals("likes")) {
-            sql = "SELECT id, name, description, release_date, duration, rating_id, COUNT(fl.film_id) AS likes_count FROM film AS f " +
-                    "JOIN film_like AS fl ON f.id = fl.film_id " +
-                    "WHERE f.id IN " +
-                    "(SELECT film_id FROM film_directors WHERE director_id = ?) " +
-                    "GROUP BY f.id " +
-                    "ORDER BY likes_count DESC ";
-            orderedFilms.addAll(jdbcTemplate.query(sql, this::mapRowToFilm, directorId));
+        sql = "SELECT film.* " +
+                "FROM film INNER JOIN film_directors ON film_directors.film_id = film.id " +
+                "WHERE film_directors.director_id = ?";
+        List<Film> films = jdbcTemplate.query(sql, this::mapRowToFilm, directorId);
+        if ("year".equals(sortBy)) {
+            return films.stream()
+                    .sorted(Comparator.comparingInt(film -> film.getReleaseDate().getYear()))
+                    .collect(Collectors.toList());
         } else {
-            throw new ValidationException("Неверный параметр запроса. Возможны варианты: [year, like]");
+            return films.stream()
+                    .sorted((film1, film2) -> film2.getLikes().size() - film1.getLikes().size())
+                    .collect(Collectors.toList());
         }
-        return orderedFilms;
     }
 
     @Override
@@ -200,7 +193,7 @@ public class FilmDbStorage implements FilmStorage {
         String lowerQuery = query.toLowerCase();
 
         if (by.equals("title")) {
-            sql = "SELECT * FROM film WHERE LOWER(name) LIKE ? ;";
+            sql = "SELECT * FROM film WHERE LOWER(name) LIKE ? ORDER BY id DESC;";
 
             return jdbcTemplate.query(sql, new String[]{"%" + lowerQuery + "%"}, this::mapRowToFilm);
 
@@ -208,7 +201,7 @@ public class FilmDbStorage implements FilmStorage {
             sql = "SELECT * FROM film " +
                     "WHERE id IN " +
                     "(SELECT film_id FROM film_directors WHERE director_id IN " +
-                    "(SELECT director_id FROM directors WHERE LOWER(name) LIKE ?)) ;";
+                    "(SELECT director_id FROM directors WHERE LOWER(name) LIKE ?)) ORDER BY id DESC;";
 
             return jdbcTemplate.query(sql, new String[]{"%" + lowerQuery + "%"}, this::mapRowToFilm);
 
@@ -217,7 +210,7 @@ public class FilmDbStorage implements FilmStorage {
                     "WHERE id IN " +
                     "(SELECT film_id FROM film_directors WHERE director_id IN " +
                     "(SELECT director_id FROM directors WHERE LOWER(name) LIKE ?))" +
-                    "OR LOWER(name) LIKE ? ;";
+                    "OR LOWER(name) LIKE ? ORDER BY id DESC;";
 
             return jdbcTemplate.query(sql, new String[]{"%" + lowerQuery + "%", "%" + lowerQuery + "%"}, this::mapRowToFilm);
 

@@ -100,6 +100,22 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void addDislike(Integer reviewId, Integer userId) {
+        sql = "SELECT * FROM review_likes WHERE review_id = ? AND user_id = ? AND like_type = 'dislike'";
+        SqlRowSet dislikeRows = jdbcTemplate.queryForRowSet(sql, reviewId, userId);
+        if (dislikeRows.first()) {
+            removeDislike(reviewId, userId);
+            addLike(reviewId, userId);
+            return;
+        }
+
+        sql = "SELECT * FROM review_likes WHERE review_id = ? AND user_id = ? AND like_type = 'like'";
+        SqlRowSet likeRows = jdbcTemplate.queryForRowSet(sql, reviewId, userId);
+        if (likeRows.first()) {
+            removeLike(reviewId, userId);
+            addDislike(reviewId, userId);
+            return;
+        }
+
         sql = "INSERT INTO review_likes(review_id, user_id, like_type) VALUES (?, ?, 'dislike')";
         jdbcTemplate.update(sql, reviewId, userId);
         updateUsefulCount(reviewId, -1);
@@ -107,14 +123,14 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void removeLike(Integer reviewId, Integer userId) {
-        sql = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND like_type = 'like'";
+        sql = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ?";
         jdbcTemplate.update(sql, reviewId, userId);
         updateUsefulCount(reviewId, -1);
     }
 
     @Override
     public void removeDislike(Integer reviewId, Integer userId) {
-        sql = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ? AND like_type = 'dislike'";
+        sql = "DELETE FROM review_likes WHERE review_id = ? AND user_id = ?";
         jdbcTemplate.update(sql, reviewId, userId);
         updateUsefulCount(reviewId, 1);
     }
