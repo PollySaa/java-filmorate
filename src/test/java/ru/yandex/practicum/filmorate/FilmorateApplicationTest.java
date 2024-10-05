@@ -61,8 +61,6 @@ class FilmorateApplicationTest {
         firstFilm.setDuration(120);
         firstFilm.setMpa(new Mpa(1, "G"));
         firstFilm.setLikes(new HashSet<>());
-        firstFilm.setGenres(new HashSet<>(Arrays.asList(new Genre(2, "Драма"),
-                new Genre(1, "Комедия"))));
 
         secondFilm = new Film();
         secondFilm.setName("Something2");
@@ -71,7 +69,6 @@ class FilmorateApplicationTest {
         secondFilm.setDuration(160);
         secondFilm.setMpa(new Mpa(3, "PG-13"));
         secondFilm.setLikes(new HashSet<>());
-        secondFilm.setGenres(new HashSet<>(List.of(new Genre(6, "Боевик"))));
 
         thirdFilm = new Film();
         thirdFilm.setName("Something3");
@@ -80,7 +77,6 @@ class FilmorateApplicationTest {
         thirdFilm.setDuration(130);
         thirdFilm.setLikes(new HashSet<>());
         thirdFilm.setMpa(new Mpa(4, "R"));
-        thirdFilm.setGenres(new HashSet<>(List.of(new Genre(2, "Драма"))));
     }
 
     @Test
@@ -138,7 +134,7 @@ class FilmorateApplicationTest {
         firstFilm = filmStorage.addFilm(firstFilm);
         Film updateFilm = new Film(firstFilm.getId(), "new1", "NewEmpty",
                 LocalDate.of(2000, 7, 7), 120, null, new Mpa(1, "G"),
-                Set.of(new Genre(2, "Драма")), Set.of());
+                null, Set.of());
         updateFilm.setMpa(new Mpa(1, "G"));
         Optional<Film> testUpdateFilm = Optional.ofNullable(filmStorage.updateFilm(updateFilm));
         assertThat(testUpdateFilm)
