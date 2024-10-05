@@ -21,20 +21,20 @@ public class FilmService {
     final FilmStorage filmStorage;
     final UserStorage userStorage;
     final LikeStorage likeStorage;
-    final EventStorage eventStorage;
     final String errorUser = "Пользователь не найден";
     final String errorFilm = "Фильм не найден";
     final String errorCount = "Некорректное значение параметра count";
     Film film;
-    Event event;
+    final EventService eventService;
+
 
     @Autowired
     public FilmService(FilmStorage filmStorage, UserStorage userStorage, LikeStorage likeStorage,
-                       EventStorage eventStorage) {
+                       EventService eventService) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.likeStorage = likeStorage;
-        this.eventStorage = eventStorage;
+        this.eventService = eventService;
     }
 
     public void addLike(Integer userId, Integer filmId) {
@@ -44,10 +44,7 @@ public class FilmService {
 
                 if (!likeStorage.existsLike(filmId, userId)) {
                     likeStorage.addLike(filmId, userId);
-
-                    event = new Event(System.currentTimeMillis(), userId, EventType.LIKE, Operation.ADD, filmId,
-                            filmId);
-                    eventStorage.addEvent(event);
+                    Event event = eventService.addEvent(userId, filmId, EventType.LIKE, Operation.ADD);
                 }
             } else {
                 throw new NotFoundException(errorUser);
@@ -62,14 +59,13 @@ public class FilmService {
         if (film != null) {
             if (film.getLikes().contains(userId)) {
                 likeStorage.deleteLike(filmId, userId);
+                Event event = eventService.addEvent(userId, filmId, EventType.LIKE, Operation.REMOVE);
             } else {
                 throw new NotFoundException(errorUser);
             }
         } else {
             throw new NotFoundException(errorFilm);
         }
-        event = new Event(System.currentTimeMillis(), userId, EventType.LIKE, Operation.REMOVE, null, filmId);
-        eventStorage.addEvent(event);
     }
 
     public List<Film> getTopPopularFilms(Integer count) {

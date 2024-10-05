@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.EventService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -22,6 +23,7 @@ import java.util.List;
 public class UserController {
     private final UserStorage userStorage;
     private final UserService userService;
+    private final EventService eventService;
 
     @PostMapping
     public User addUser(@RequestBody User user) {
@@ -118,6 +120,6 @@ public class UserController {
 
     @GetMapping("/{id}/feed")
     public List<Event> getUserFeed(@PathVariable Integer id) {
-        return userService.getUserFeed(id);
+        return eventService.getUserFeed(id);
     }
 }

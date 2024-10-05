@@ -17,26 +17,22 @@ import java.util.List;
 public class UserService {
     final FriendStorage friendStorage;
     final LikeStorage likeStorage;
-    final EventStorage eventStorage;
-    Event event;
+    final EventService eventService;
 
-    public UserService(FriendStorage friendStorage, LikeStorage likeStorage, EventStorage eventStorage) {
+    public UserService(FriendStorage friendStorage, LikeStorage likeStorage, EventService eventService) {
         this.friendStorage = friendStorage;
         this.likeStorage = likeStorage;
-        this.eventStorage = eventStorage;
+        this.eventService = eventService;
     }
 
     public void addFriend(Integer userId, Integer friendId) {
-        event = new Event(System.currentTimeMillis(), userId, EventType.FRIEND, Operation.ADD, null, friendId);
-        eventStorage.addEvent(event);
         friendStorage.addFriend(userId, friendId);
+        Event event = eventService.addEvent(userId, friendId, EventType.FRIEND, Operation.ADD);
     }
 
     public void removeFriend(Integer userId, Integer friendId) {
         friendStorage.deleteFriend(userId, friendId);
-        event = new Event(System.currentTimeMillis(), userId, EventType.FRIEND, Operation.REMOVE, null,
-                        friendId);
-        eventStorage.addEvent(event);
+        Event event = eventService.addEvent(userId, friendId, EventType.FRIEND, Operation.REMOVE);
     }
 
     public List<User> getCommonFriends(Integer userId1, Integer userId2) {
@@ -52,6 +48,6 @@ public class UserService {
     }
 
     public List<Event> getUserFeed(Integer userId) {
-        return eventStorage.getUserEventsById(userId);
+        return eventService.getUserFeed(userId);
     }
 }

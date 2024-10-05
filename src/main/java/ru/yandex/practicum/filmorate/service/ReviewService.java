@@ -22,41 +22,43 @@ public class ReviewService {
     final ReviewStorage reviewStorage;
     final UserStorage userStorage;
     final FilmStorage filmStorage;
-    final EventStorage eventStorage;
     Event event;
+    final EventService eventService;
     Review review;
 
-    public ReviewService(ReviewStorage reviewStorage, UserStorage userStorage, FilmStorage filmStorage,
-                         EventStorage eventStorage) {
+    public ReviewService(ReviewStorage reviewStorage, UserStorage userStorage, FilmStorage filmStorage, EventService eventService) {
         this.reviewStorage = reviewStorage;
         this.userStorage = userStorage;
         this.filmStorage = filmStorage;
-        this.eventStorage = eventStorage;
+        this.eventService = eventService;
     }
 
     public Review addReview(Review review) {
         performChecks(review);
         review = reviewStorage.addReview(review);
-        event = new Event(System.currentTimeMillis(), review.getUserId(), EventType.REVIEW, Operation.ADD,
-                review.getFilmId(), review.getReviewId());
-        eventStorage.addEvent(event);
+        Event event = eventService.addEvent(review.getUserId(),
+                review.getReviewId(),
+                EventType.REVIEW,
+                Operation.ADD);
         return review;
     }
 
     public Review updateReview(Review review) {
         performChecks(review);
         review = reviewStorage.updateReview(review);
-        event = new Event(System.currentTimeMillis(), review.getUserId(), EventType.REVIEW, Operation.UPDATE,
-                review.getFilmId(), review.getReviewId());
-        eventStorage.addEvent(event);
+        Event event = eventService.addEvent(review.getUserId(),
+                review.getReviewId(),
+                EventType.REVIEW,
+                Operation.UPDATE);
         return review;
     }
 
     public Review deleteReview(Integer id) {
         review = getReviewById(id);
-        event = new Event(System.currentTimeMillis(), review.getUserId(), EventType.REVIEW, Operation.REMOVE, id,
-                review.getReviewId());
-        eventStorage.addEvent(event);
+        Event event = eventService.addEvent(review.getUserId(),
+                id,
+                EventType.REVIEW,
+                Operation.REMOVE);
         return reviewStorage.deleteReview(id);
     }
 
@@ -72,24 +74,28 @@ public class ReviewService {
         review = reviewStorage.getReviewById(reviewId);
         performChecks(review);
         reviewStorage.addLike(reviewId, userId);
+        Event event = eventService.addEvent(userId, reviewId, EventType.LIKE, Operation.ADD);
     }
 
     public void addDislike(Integer reviewId, Integer userId) {
         review = reviewStorage.getReviewById(reviewId);
         performChecks(review);
         reviewStorage.addDislike(reviewId, userId);
+        //Event event = eventService.addEvent(userId, reviewId, EventType.LIKE, Operation.ADD);
     }
 
     public void removeLike(Integer reviewId, Integer userId) {
         review = reviewStorage.getReviewById(reviewId);
         performChecks(review);
         reviewStorage.removeLike(reviewId, userId);
+        Event event = eventService.addEvent(userId, reviewId, EventType.LIKE, Operation.REMOVE);
     }
 
     public void removeDislike(Integer reviewId, Integer userId) {
         review = reviewStorage.getReviewById(reviewId);
         performChecks(review);
         reviewStorage.removeDislike(reviewId, userId);
+        // Event event = eventService.addEvent(userId, reviewId, EventType.LIKE, Operation.REMOVE);
     }
 
     private void performChecks(Review review) {

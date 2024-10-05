@@ -1,98 +1,77 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Operation;
-import ru.yandex.practicum.filmorate.model.User;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@Slf4j
 public class EventDbStorage implements EventStorage {
-    final JdbcTemplate jdbcTemplate;
-    final UserStorage userStorage;
-    final NamedParameterJdbcOperations jdbcOperations;
-    String sql;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Event addEvent(Event event) {
-        sql = "INSERT INTO events(timestamp, user_id, event_type, operation, entity_id) " +
-                "VALUES (:timestamp, :userId, :eventType, :operation, :entityId) ";
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        MapSqlParameterSource map = new MapSqlParameterSource();
-        map.addValue("timestamp", event.getTimestamp());
-        map.addValue("userId", event.getUserId());
-        map.addValue("eventType", event.getEventType().toString());
-        map.addValue("operation", event.getOperation().toString());
-        map.addValue("entityId", event.getEntityId());
-        jdbcOperations.update(sql, map, keyHolder);
-        event.setEventId(Objects.requireNonNull(keyHolder.getKey()).intValue());
-        return event;
+    public int addEvent(final Event event) {
+        SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("events")
+                .usingGeneratedKeyColumns("id");
+
+        Map<String, Object> params = new HashMap<>();
+
+        params.put("time_stamp", event.getTimestamp());
+        params.put("user_id", event.getUserId());
+        params.put("entity_id", event.getEntityId());
+        params.put("event_type", event.getEventType().toString());
+        params.put("operation", event.getOperation().toString());
+
+        int eventId = jdbcInsert.executeAndReturnKey(params).intValue();
+
+        return eventId;
     }
 
     @Override
-    public Event updateEvent(Event event) {
-        sql = "UPDATE events SET timestamp = :timestamp, user_id = :userId, event_type = :eventType, " +
-                "operation = :operation, entity_id = :entityId WHERE event_id = :eventId";
-        MapSqlParameterSource map = new MapSqlParameterSource();
-        map.addValue("timestamp", event.getTimestamp());
-        map.addValue("userId", event.getUserId());
-        map.addValue("eventType", event.getEventType());
-        map.addValue("operation", event.getOperation());
-        map.addValue("eventId", event.getEventId());
-        map.addValue("entityId", event.getEntityId());
-        jdbcOperations.update(sql, map);
-        return event;
+    public List<Event> getEventsByUserId(final int userId) {
+        String sqlRequest = "SELECT * FROM events WHERE user_id = ?;";
+        RowMapper<Event> eventMapper = (rs, rowNum) -> makeEvent(rs);
+
+        return jdbcTemplate.query(sqlRequest, eventMapper, userId);
     }
 
     @Override
-    public Event getEventById(Integer eventId) {
-        Event event;
-        SqlRowSet eventRows = jdbcTemplate.queryForRowSet("SELECT * FROM events WHERE id = ?", eventId);
-        if (eventRows.first()) {
-            event = new Event(
-                    eventRows.getLong("timestamp"),
-                    eventRows.getInt("user_id"),
-                    EventType.valueOf(eventRows.getString("event_type")),
-                    Operation.valueOf(eventRows.getString("operation")),
-                    eventRows.getInt("event_id"),
-                    eventRows.getInt("entity_id")
-            );
-        } else {
-            throw new NotFoundException("Событие с id = " + eventId + " не найдено!");
-        }
-        return event;
+    public Event getEventById(int eventId) {
+        String sqlRequest = "SELECT * FROM events WHERE id = ?";
+        RowMapper<Event> eventMapper = (rs, rowNum) -> makeEvent(rs);
+
+        return jdbcTemplate.queryForObject(sqlRequest, eventMapper, eventId);
     }
 
-    @Override
-    public List<Event> getUserEventsById(Integer userId) {
-        User user = userStorage.getUserById(userId);
-        if (user != null) {
-            String sql = "SELECT * FROM events WHERE user_id = ?";
-            return jdbcTemplate.query(sql, (rs, rowNum) -> new Event(
-                            rs.getLong("timestamp"),
-                            rs.getInt("user_id"),
-                            EventType.valueOf(rs.getString("event_type")),
-                            Operation.valueOf(rs.getString("operation")),
-                            rs.getInt("event_id"),
-                            rs.getInt("entity_id")),
-                    userId);
-        } else {
-            throw new NotFoundException("Пользователь с id " + userId + " не найден!");
-        }
+    private Event makeEvent(ResultSet rs) throws SQLException {
+        int eventId = rs.getInt("id");
+        long timestamp = rs.getLong("time_stamp");
+        int userId = rs.getInt("user_id");
+        EventType eventType = EventType.valueOf(rs.getString("event_type"));
+        Operation operation = Operation.valueOf(rs.getString("operation"));
+        int entityId = rs.getInt("entity_id");
+
+        return Event.builder()
+                .eventId(eventId)
+                .timestamp(timestamp)
+                .userId(userId)
+                .eventType(eventType)
+                .operation(operation)
+                .entityId(entityId)
+                .build();
     }
 }
