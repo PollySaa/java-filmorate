@@ -21,6 +21,7 @@ import java.util.Map;
 @Slf4j
 public class EventDbStorage implements EventStorage {
     private final JdbcTemplate jdbcTemplate;
+    private String sqlRequest;
 
     @Override
     public int addEvent(final Event event) {
@@ -43,7 +44,7 @@ public class EventDbStorage implements EventStorage {
 
     @Override
     public List<Event> getEventsByUserId(final int userId) {
-        String sqlRequest = "SELECT * FROM events WHERE user_id = ?;";
+        sqlRequest = "SELECT * FROM events WHERE user_id = ?;";
         RowMapper<Event> eventMapper = (rs, rowNum) -> makeEvent(rs);
 
         return jdbcTemplate.query(sqlRequest, eventMapper, userId);
@@ -51,7 +52,7 @@ public class EventDbStorage implements EventStorage {
 
     @Override
     public Event getEventById(int eventId) {
-        String sqlRequest = "SELECT * FROM events WHERE id = ?";
+        sqlRequest = "SELECT * FROM events WHERE id = ?";
         RowMapper<Event> eventMapper = (rs, rowNum) -> makeEvent(rs);
 
         return jdbcTemplate.queryForObject(sqlRequest, eventMapper, eventId);

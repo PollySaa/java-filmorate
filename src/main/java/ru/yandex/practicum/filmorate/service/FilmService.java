@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
@@ -21,12 +20,12 @@ public class FilmService {
     final FilmStorage filmStorage;
     final UserStorage userStorage;
     final LikeStorage likeStorage;
+    final EventService eventService;
     final String errorUser = "Пользователь не найден";
     final String errorFilm = "Фильм не найден";
     final String errorCount = "Некорректное значение параметра count";
     Film film;
-    final EventService eventService;
-
+    Event event;
 
     @Autowired
     public FilmService(FilmStorage filmStorage, UserStorage userStorage, LikeStorage likeStorage,
@@ -44,7 +43,6 @@ public class FilmService {
 
                 if (!likeStorage.existsLike(filmId, userId)) {
                     likeStorage.addLike(filmId, userId);
-                    Event event = eventService.addEvent(userId, filmId, EventType.LIKE, Operation.ADD);
                 }
             } else {
                 throw new NotFoundException(errorUser);
@@ -52,6 +50,8 @@ public class FilmService {
         } else {
             throw new NotFoundException(errorFilm);
         }
+
+        event = eventService.addEvent(userId, filmId, EventType.LIKE, Operation.ADD);
     }
 
     public void removeLike(Integer userId, Integer filmId) {
@@ -59,7 +59,7 @@ public class FilmService {
         if (film != null) {
             if (film.getLikes().contains(userId)) {
                 likeStorage.deleteLike(filmId, userId);
-                Event event = eventService.addEvent(userId, filmId, EventType.LIKE, Operation.REMOVE);
+                event = eventService.addEvent(userId, filmId, EventType.LIKE, Operation.REMOVE);
             } else {
                 throw new NotFoundException(errorUser);
             }

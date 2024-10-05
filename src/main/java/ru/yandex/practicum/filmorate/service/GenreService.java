@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -43,5 +42,4 @@ public class GenreService {
     public List<Genre> getFilmGenres(Integer filmId) {
         return new ArrayList<>(genreStorage.getFilmGenres(filmId));
     }
-
 }

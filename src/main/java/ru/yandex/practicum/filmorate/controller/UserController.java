@@ -92,6 +92,11 @@ public class UserController {
         userStorage.deleteUser(id);
     }
 
+    @GetMapping("/{id}/feed")
+    public List<Event> getUserFeed(@PathVariable Integer id) {
+        return eventService.getUserFeed(id);
+    }
+
     private void validation(User user) {
         String error;
         if (user.getEmail() == null || user.getEmail().isEmpty() || !user.getEmail().contains("@")) {
@@ -116,10 +121,5 @@ public class UserController {
             log.error(error);
             throw new ValidationException(error);
         }
-    }
-
-    @GetMapping("/{id}/feed")
-    public List<Event> getUserFeed(@PathVariable Integer id) {
-        return eventService.getUserFeed(id);
     }
 }

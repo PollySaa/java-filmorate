@@ -1,12 +1,9 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.*;
-import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.LikeStorage;
 
@@ -18,6 +15,7 @@ public class UserService {
     final FriendStorage friendStorage;
     final LikeStorage likeStorage;
     final EventService eventService;
+    Event event;
 
     public UserService(FriendStorage friendStorage, LikeStorage likeStorage, EventService eventService) {
         this.friendStorage = friendStorage;
@@ -27,12 +25,12 @@ public class UserService {
 
     public void addFriend(Integer userId, Integer friendId) {
         friendStorage.addFriend(userId, friendId);
-        Event event = eventService.addEvent(userId, friendId, EventType.FRIEND, Operation.ADD);
+        event = eventService.addEvent(userId, friendId, EventType.FRIEND, Operation.ADD);
     }
 
     public void removeFriend(Integer userId, Integer friendId) {
         friendStorage.deleteFriend(userId, friendId);
-        Event event = eventService.addEvent(userId, friendId, EventType.FRIEND, Operation.REMOVE);
+        event = eventService.addEvent(userId, friendId, EventType.FRIEND, Operation.REMOVE);
     }
 
     public List<User> getCommonFriends(Integer userId1, Integer userId2) {
