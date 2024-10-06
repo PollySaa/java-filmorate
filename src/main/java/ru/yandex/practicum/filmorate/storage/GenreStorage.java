@@ -19,9 +19,9 @@ public class GenreStorage {
     String sql;
 
     @Autowired
-    public GenreStorage(JdbcTemplate jdbcTemplate) {
+    public GenreStorage(JdbcTemplate jdbcTemplate, GenreMapper genreMapper) {
         this.jdbcTemplate = jdbcTemplate;
-        this.genreMapper = new GenreMapper();
+        this.genreMapper = genreMapper;
     }
 
     public List<Genre> getGenres() {

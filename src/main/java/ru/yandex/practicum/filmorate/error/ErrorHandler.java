@@ -15,14 +15,14 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(final ValidationException e) {
-        log.error(HttpStatus.BAD_REQUEST.toString(), e);
+        log.error("Получен статус HttpStatus.BAD_REQUEST.toString(), {}", e.getMessage(), e);
         return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFoundException(final NotFoundException e) {
-        log.error(HttpStatus.NOT_FOUND.toString(), e);
+        log.error("Получен статус HttpStatus.NOT_FOUND.toString(), {}", e.getMessage(), e);
         return new ErrorResponse(e.getMessage());
     }
 }

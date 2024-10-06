@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.validation.constraints.*;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -14,9 +15,15 @@ import java.util.Set;
 @FieldDefaults(makeFinal = false, level = AccessLevel.PRIVATE)
 public class User {
     Integer id;
+    @Email
+    @NotBlank
     String email;
+    @NotBlank
+    @Pattern(regexp = "\\S+")
     String login;
     String name;
+    @Past
+    @NotNull
     LocalDate birthday;
     Set<Integer> friends;
 

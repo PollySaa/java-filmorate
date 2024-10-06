@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,7 +18,9 @@ public class Review {
     Integer reviewId;
     String content;
     Boolean isPositive;
+    @Positive
     Integer userId;
+    @Positive
     Integer filmId;
     int useful;
 

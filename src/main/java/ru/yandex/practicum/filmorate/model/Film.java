@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.validation.constraints.*;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -11,9 +12,13 @@ import java.util.*;
 @FieldDefaults(makeFinal = false, level = AccessLevel.PRIVATE)
 public class Film {
     Integer id;
+    @NotBlank
     String name;
+    @Size(min = 1, max = 200)
     String description;
+    @NotNull
     LocalDate releaseDate;
+    @Positive
     int duration;
     List<Genre> genres = new ArrayList<>();
     Mpa mpa;

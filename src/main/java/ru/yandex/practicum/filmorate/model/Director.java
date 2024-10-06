@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +16,7 @@ import java.util.Map;
 @Builder(toBuilder = true)
 public class Director {
     Integer id;
+    @NotBlank
     String name;
 
     public Map<String, Object> toMap() {
