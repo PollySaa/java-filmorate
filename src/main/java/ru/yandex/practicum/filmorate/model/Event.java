@@ -1,18 +1,26 @@
 package ru.yandex.practicum.filmorate.model;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @Data
 @FieldDefaults(makeFinal = false, level = AccessLevel.PRIVATE)
-@NoArgsConstructor
 @AllArgsConstructor
-public class Genre {
-    Integer id;
+@Builder(toBuilder = true)
+public class Event {
+    Long timestamp;
     @NotBlank
-    String name;
+    Integer userId;
+    @NotBlank
+    EventType eventType;
+    @NotBlank
+    Operation operation;
+    Integer eventId;
+    @NotNull
+    Integer entityId;
 }

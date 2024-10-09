@@ -9,18 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.core.AutoConfigureCache;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.UserDbStorage;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -63,8 +61,6 @@ class FilmorateApplicationTest {
         firstFilm.setDuration(120);
         firstFilm.setMpa(new Mpa(1, "G"));
         firstFilm.setLikes(new HashSet<>());
-        firstFilm.setGenres(new HashSet<>(Arrays.asList(new Genre(2, "Драма"),
-                new Genre(1, "Комедия"))));
 
         secondFilm = new Film();
         secondFilm.setName("Something2");
@@ -73,7 +69,6 @@ class FilmorateApplicationTest {
         secondFilm.setDuration(160);
         secondFilm.setMpa(new Mpa(3, "PG-13"));
         secondFilm.setLikes(new HashSet<>());
-        secondFilm.setGenres(new HashSet<>(List.of(new Genre(6, "Боевик"))));
 
         thirdFilm = new Film();
         thirdFilm.setName("Something3");
@@ -82,7 +77,6 @@ class FilmorateApplicationTest {
         thirdFilm.setDuration(130);
         thirdFilm.setLikes(new HashSet<>());
         thirdFilm.setMpa(new Mpa(4, "R"));
-        thirdFilm.setGenres(new HashSet<>(List.of(new Genre(2, "Драма"))));
     }
 
     @Test
@@ -140,7 +134,7 @@ class FilmorateApplicationTest {
         firstFilm = filmStorage.addFilm(firstFilm);
         Film updateFilm = new Film(firstFilm.getId(), "new1", "NewEmpty",
                 LocalDate.of(2000, 7, 7), 120, null, new Mpa(1, "G"),
-                Set.of(new Genre(2, "Драма")));
+                null, Set.of());
         updateFilm.setMpa(new Mpa(1, "G"));
         Optional<Film> testUpdateFilm = Optional.ofNullable(filmStorage.updateFilm(updateFilm));
         assertThat(testUpdateFilm)
@@ -224,6 +218,39 @@ class FilmorateApplicationTest {
                                 .hasFieldOrPropertyWithValue("name", "Something3"));
 
         assertThat(Optional.of(listFilms.get(2)))
+                .hasValueSatisfying(film ->
+                        AssertionsForClassTypes.assertThat(film)
+                                .hasFieldOrPropertyWithValue("name", "Something1"));
+    }
+
+    @Test
+    public void testGetCommonFilms() {
+        firstUser = userStorage.addUser(firstUser);
+        secondUser = userStorage.addUser(secondUser);
+        thirdUser = userStorage.addUser(thirdUser);
+
+        firstFilm = filmStorage.addFilm(firstFilm);
+        filmService.addLike(firstUser.getId(), firstFilm.getId());
+        filmService.addLike(secondUser.getId(), firstFilm.getId());
+
+        secondFilm = filmStorage.addFilm(secondFilm);
+        filmService.addLike(firstUser.getId(), secondFilm.getId());
+        filmService.addLike(secondUser.getId(), secondFilm.getId());
+        filmService.addLike(thirdUser.getId(), secondFilm.getId());
+
+        thirdFilm = filmStorage.addFilm(thirdFilm);
+        filmService.addLike(firstUser.getId(), thirdFilm.getId());
+
+        List<Film> listFilms = filmService.getCommonFilms(firstUser.getId(), secondUser.getId());
+
+        assertThat(listFilms).hasSize(2);
+
+        assertThat(Optional.of(listFilms.get(0)))
+                .hasValueSatisfying(film ->
+                        AssertionsForClassTypes.assertThat(film)
+                                .hasFieldOrPropertyWithValue("name", "Something2"));
+
+        assertThat(Optional.of(listFilms.get(1)))
                 .hasValueSatisfying(film ->
                         AssertionsForClassTypes.assertThat(film)
                                 .hasFieldOrPropertyWithValue("name", "Something1"));

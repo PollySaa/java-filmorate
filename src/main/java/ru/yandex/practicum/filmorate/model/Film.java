@@ -1,29 +1,32 @@
 package ru.yandex.practicum.filmorate.model;
 
+import jakarta.validation.constraints.*;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @FieldDefaults(makeFinal = false, level = AccessLevel.PRIVATE)
 public class Film {
     Integer id;
+    @NotBlank
     String name;
+    @Size(min = 1, max = 200)
     String description;
+    @NotNull
     LocalDate releaseDate;
+    @Positive
     int duration;
-    Set<Genre> genres = new HashSet<>();
+    List<Genre> genres = new ArrayList<>();
     Mpa mpa;
     Set<Integer> likes = new HashSet<>();
+    Set<Director> directors = new HashSet<>();
 
     public Film(Integer id, String name, String description, LocalDate releaseDate, Integer duration,
-                Set<Integer> likes, Mpa mpa, Set<Genre> genres) {
+                Set<Integer> likes, Mpa mpa, List<Genre> genres, Set<Director> directors) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -32,6 +35,7 @@ public class Film {
         this.likes = likes;
         this.mpa = mpa;
         this.genres = genres;
+        this.directors = directors;
     }
 
     public Film() {
@@ -46,5 +50,4 @@ public class Film {
         values.put("rating_id", mpa.getId());
         return values;
     }
-
 }
